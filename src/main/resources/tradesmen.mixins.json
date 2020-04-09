@@ -1,0 +1,12 @@
+{
+	"required": true,
+	"package": "mod.linguardium.tradesmen.mixins",
+	"compatibilityLevel": "JAVA_8",
+	"mixins": [
+		"WanderingTraderManagerMixin"
+	],
+	"client": [],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

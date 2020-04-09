@@ -3,7 +3,7 @@
   "id": "tradesmen",
   "version": "${version}",
   "name": "Wandering Tradesmen",
-  "description": "Adds customizable wandering traders",
+    "description": "Adds customizable wandering traders",
   "authors": [
     "Linguardium"
   ],
@@ -17,8 +17,14 @@
       "mod.linguardium.tradesmen.Tradesmen"
     ],
     "client": ["mod.linguardium.tradesmen.TradesmenClient"],
-    "server": []
+    "server": [],
+    "modmenu": [
+      "mod.linguardium.tradesmen.config.ConfigMenu"
+    ]
   },
+  "mixins": [
+    "tradesmen.mixins.json"
+  ],
   "depends": {
     "fabricloader": ">=0.4.0",
     "fabric": "*",
