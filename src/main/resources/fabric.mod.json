@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "tradesmen",
+  "version": "${version}",
+  "name": "Wandering Tradesmen",
+  "description": "Adds customizable wandering traders",
+  "authors": [
+    "Linguardium"
+  ],
+  "contributors": [],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/tradesmen/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "mod.linguardium.tradesmen.Tradesmen"
+    ],
+    "client": ["mod.linguardium.tradesmen.TradesmenClient"],
+    "server": []
+  },
+  "depends": {
+    "fabricloader": ">=0.4.0",
+    "fabric": "*",
+    "libcd": ">=2.3.0"
+  }
+}
