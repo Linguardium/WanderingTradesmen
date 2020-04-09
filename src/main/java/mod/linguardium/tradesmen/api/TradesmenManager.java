@@ -12,6 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.SpawnHelper;
@@ -26,8 +27,8 @@ import java.util.*;
 
 public class TradesmenManager implements WorldTickCallback {
     private HashMap<World, WorldTradesmenManager> WorldManagers = new HashMap<>();
-    public static final int SPAWN_DELAY_CONSTANT = 1200; // 24000
-    public static final int SPAWN_CHANCE_CONSTANT = 100; // 25
+    public static final int SPAWN_DELAY_CONSTANT = 24000; // 24000
+    public static final int SPAWN_CHANCE_CONSTANT = 25; // 25
     public static HashMap<String, Trader> Traders = new HashMap<>();
     public TradesmenManager() {
         Tradesmen.log(Level.INFO,"Trader Manager Initialized");
@@ -64,7 +65,7 @@ public class TradesmenManager implements WorldTickCallback {
                         this.spawnDelay = TradesmenManager.SPAWN_DELAY_CONSTANT;
                         if (this.world.getGameRules().getBoolean(GameRules.DO_MOB_SPAWNING)) {
                             int i = this.spawnChance;
-                            //this.spawnChance = MathHelper.clamp(this.spawnChance + 25, 25, 75);
+                            this.spawnChance = MathHelper.clamp(this.spawnChance + 25, 25, 75);
                             if (this.random.nextInt(100) <= i) {
                                 if (this.spawnRoamingTrader()) {
                                     this.spawnChance = TradesmenManager.SPAWN_CHANCE_CONSTANT;
@@ -133,7 +134,7 @@ public class TradesmenManager implements WorldTickCallback {
                 int l = blockPos.getZ() + this.random.nextInt(distance * 2) - distance;
                 int m = this.world.getTopY(Heightmap.Type.WORLD_SURFACE, k, l);
                 BlockPos blockPos3 = new BlockPos(k, m, l);
-                if (SpawnHelper.canSpawn(SpawnRestriction.Location.ON_GROUND, this.world, blockPos3, EntityType.WANDERING_TRADER)) {
+                if (SpawnHelper.canSpawn(SpawnRestriction.Location.ON_GROUND, this.world, blockPos3, InitEntities.TRADESMEN_ENTITY_TYPE)) {
                     blockPos2 = blockPos3;
                     break;
                 }
