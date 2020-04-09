@@ -14,7 +14,7 @@ public class TradesmenTradeOffers {
 
     static class SellItemFactory implements TradeOffers.Factory {
         private ItemStack sell;
-        private int price;
+        private ItemStack[] price;
         private int count;
         private int maxUses;
         private int experience;
@@ -29,34 +29,42 @@ public class TradesmenTradeOffers {
             this.multiplier=from.multiplier;
         }
         public SellItemFactory(Block block, int price, int count, int maxUses, int experience) {
-            this(new ItemStack(block), price, count, maxUses, experience);
+            this(new ItemStack(block, count), price, maxUses, experience);
         }
 
         public SellItemFactory(Item item, int price, int count, int experience) {
-            this((ItemStack) (new ItemStack(item)), price, count, 12, experience);
+            this(new ItemStack(item, count), price, 12, experience);
         }
 
         public SellItemFactory(Item item, int price, int count, int maxUses, int experience) {
-            this(new ItemStack(item), price, count, maxUses, experience);
+            this(new ItemStack(item, count), price, maxUses, experience);
         }
 
-        public SellItemFactory(ItemStack itemStack, int price, int count, int maxUses, int experience) {
-            this(itemStack, price, count, maxUses, experience, 0.05F);
+        public SellItemFactory(ItemStack itemStack, int price, int maxUses, int experience) {
+            this(itemStack, price, maxUses, experience, 0.05F);
         }
 
-        public SellItemFactory(ItemStack itemStack, int price, int count, int maxUses, int experience, float multiplier) {
+        public SellItemFactory(ItemStack itemStack, int price, int maxUses, int experience, float multiplier) {
+            this(itemStack,new ItemStack(Items.EMERALD, price), maxUses,experience,multiplier);
+        }
+        public SellItemFactory(ItemStack itemStack, ItemStack price, int maxUses, int experience) {
+            this(itemStack,price, maxUses,experience,0.05F);
+        }
+
+        public SellItemFactory(ItemStack itemStack, ItemStack price, int maxUses, int experience, float multiplier) {
+            this(itemStack,new ItemStack[]{price,ItemStack.EMPTY},maxUses,experience,multiplier);
+        }
+        public SellItemFactory(ItemStack itemStack, ItemStack[] price, int maxUses, int experience, float multiplier) {
             this.sell = itemStack;
             this.price = price;
-            this.count = count;
             this.maxUses = maxUses;
             this.experience = experience;
             this.multiplier = multiplier;
         }
-    
 
         public TradeOffer create(Entity entity, Random random) {
-            return new TradeOffer(new ItemStack(Items.EMERALD, this.price), 
-                new ItemStack(this.sell.getItem(), this.count), this.maxUses, this.experience, this.multiplier);
+            return new TradeOffer(this.price[0],this.price[1],
+                this.sell, this.maxUses, this.experience, this.multiplier);
         }
     }
 

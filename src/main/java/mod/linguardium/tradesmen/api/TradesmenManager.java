@@ -9,6 +9,7 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
@@ -23,12 +24,12 @@ import net.minecraft.world.poi.PointOfInterestStorage;
 import net.minecraft.world.poi.PointOfInterestType;
 import org.apache.logging.log4j.Level;
 
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.*;
 
 public class TradesmenManager implements WorldTickCallback {
     private HashMap<World, WorldTradesmenManager> WorldManagers = new HashMap<>();
-    public static final int SPAWN_DELAY_CONSTANT = 24000; // 24000
-    public static final int SPAWN_CHANCE_CONSTANT = 25; // 25
     public static HashMap<String, Trader> Traders = new HashMap<>();
     public TradesmenManager() {
         Tradesmen.log(Level.INFO,"Trader Manager Initialized");
@@ -47,11 +48,11 @@ public class TradesmenManager implements WorldTickCallback {
             this.world = world;
             this.tickCount = 1200;
             //LevelProperties levelProperties = world.getLevelProperties();
-            this.spawnDelay = TradesmenManager.SPAWN_DELAY_CONSTANT;//levelProperties.getWanderingTraderSpawnDelay();
-            this.spawnChance = TradesmenManager.SPAWN_CHANCE_CONSTANT;//levelProperties.getWanderingTraderSpawnChance();
+            this.spawnDelay = Tradesmen.getConfig().spawnDelay;//levelProperties.getWanderingTraderSpawnDelay();
+            this.spawnChance = Tradesmen.getConfig().spawnChance;//levelProperties.getWanderingTraderSpawnChance();
             if (this.spawnDelay == 0 && this.spawnChance == 0) {
-                this.spawnDelay = TradesmenManager.SPAWN_DELAY_CONSTANT;
-                this.spawnChance = TradesmenManager.SPAWN_CHANCE_CONSTANT;
+                this.spawnDelay = Tradesmen.getConfig().spawnDelay;
+                this.spawnChance = Tradesmen.getConfig().spawnChance;
             }
 
         }
@@ -62,13 +63,13 @@ public class TradesmenManager implements WorldTickCallback {
                     this.tickCount = 1200;
                     this.spawnDelay -= 1200;
                     if (this.spawnDelay <= 0) {
-                        this.spawnDelay = TradesmenManager.SPAWN_DELAY_CONSTANT;
+                        this.spawnDelay = Tradesmen.getConfig().spawnDelay;
                         if (this.world.getGameRules().getBoolean(GameRules.DO_MOB_SPAWNING)) {
                             int i = this.spawnChance;
                             this.spawnChance = MathHelper.clamp(this.spawnChance + 25, 25, 75);
                             if (this.random.nextInt(100) <= i) {
                                 if (this.spawnRoamingTrader()) {
-                                    this.spawnChance = TradesmenManager.SPAWN_CHANCE_CONSTANT;
+                                    this.spawnChance = Tradesmen.getConfig().spawnChance;
                                 }
 
                             }
@@ -106,7 +107,7 @@ public class TradesmenManager implements WorldTickCallback {
                         this.SpawnAnimal(traderEntity.getTraderAnimal(),traderEntity, 4);
 
                         //this.world.getLevelProperties().setWanderingTraderId(wanderingTraderEntity.getUuid());
-                        traderEntity.setDespawnDelay(SPAWN_DELAY_CONSTANT);
+                        traderEntity.setDespawnDelay((int)(Tradesmen.getConfig().spawnDelay*0.75F));
                         traderEntity.setWanderTarget(blockPos2);
                         traderEntity.setPositionTarget(blockPos2, 16);
                         return true;
@@ -116,12 +117,13 @@ public class TradesmenManager implements WorldTickCallback {
                 return false;
             }
         }
-        private void SpawnAnimal(String AnimalId, LivingEntity ownerTrader, int distance) {
+        private void SpawnAnimal(String AnimalId, TradesmenEntity ownerTrader, int distance) {
             BlockPos blockPos = this.getPosDistanceFrom(new BlockPos(ownerTrader), distance);
             if (blockPos != null) {
                 MobEntity traderAnimalEntity = (MobEntity)(EntityType.get(AnimalId).orElse(EntityType.TRADER_LLAMA)).spawn(this.world, (CompoundTag)null, (Text)null, (PlayerEntity)null, blockPos, SpawnType.EVENT, false, false);
                 if (traderAnimalEntity != null) {
                     traderAnimalEntity.attachLeash(ownerTrader, true);
+                    ownerTrader.setAnimalUUID(traderAnimalEntity.getUuidAsString());
                 }
             }
         }

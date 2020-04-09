@@ -1,17 +1,17 @@
-static {
-        TACO_TRADER_TRADES = copyToFastUtilMap(ImmutableMap.of(1,
-                new TradeOffers.Factory[]{
-                        new TacoTradeOffers.SellItemFactory(ModItems.TORTILLA, 1, 4, 4, 1),
-                        new TacoTradeOffers.SellItemFactory(ModItems.TORTILLA_DOUGH, 1, 8, 4, 1),
-                        new TacoTradeOffers.SellItemFactory(ModItems.CORN_SEED, 1, 3, 1, 1)
-        }, 2, new TradeOffers.Factory[]{
-                        new TacoTradeOffers.SellItemFactory(ModItems.STEAK_TACO, 4, 3, 4, 1),
-                        new TacoTradeOffers.SellItemFactory(ModItems.FISH_TACO, 2, 3, 4, 1),
-                        new TacoTradeOffers.SellItemFactory(ModItems.CRUNCHY_TACO, 4, 3, 4, 1),
-                        new TacoTradeOffers.SellItemFactory(ModItems.CHICKEN_TACO, 2, 3, 4, 1),
-                        new TacoTradeOffers.SellItemFactory(ModItems.CHEESY_TACO, 2, 3, 4, 1),
-                        new TacoTradeOffers.SellItemFactory(ModItems.CARNITAS_TACO, 3, 3, 4, 1),
-                        new TacoTradeOffers.SellItemFactory(ModItems.AL_PASTOR_TACO, 3, 3, 4, 1),
-                        new TacoTradeOffers.SellItemFactory(ModItems.GOLDEN_TACO, 10, 1, 2, 3)
-        }));
-    }
+
+    TraderTweaker.addTrader("tradesmen:tacoman","Taco Jubilee", "", "minecraft:bee",[
+            TraderTweaker.makeTrade("tacocraft:steak_taco@3",4,4,1),
+            TraderTweaker.makeTrade("tacocraft:fish_taco@3",2,4,1),
+            TraderTweaker.makeTrade("tacocraft:crunchy_taco@3",4,4,1),
+            TraderTweaker.makeTrade("tacocraft:chicken_taco@3",2,4,1),
+            TraderTweaker.makeTrade("tacocraft:cheesy_taco@3",3,4,1),
+            TraderTweaker.makeTrade("tacocraft:carnitas_taco@3",3,4,1),
+            TraderTweaker.makeTrade("tacocraft:al_pastor_taco@3",3,4,1),
+
+            ],
+        [
+            TraderTweaker.makeTrade("tacocraft:tortilla@4",1,4,1),
+            TraderTweaker.makeTrade("tacocraft:tortilla_dough@8",1,4,1),
+            TraderTweaker.makeTrade("tacocraft:corn_seed@3",1,4,1),
+            TraderTweaker.makeTrade("tacocraft:golden_taco@1",10,4,1),
+        ]);
