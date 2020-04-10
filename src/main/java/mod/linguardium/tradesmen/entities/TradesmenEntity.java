@@ -91,6 +91,7 @@ public class TradesmenEntity extends WanderingTraderEntity {
     @Override
     public void writeCustomDataToTag(CompoundTag tag) {
         super.writeCustomDataToTag(tag);
+        tag.putInt("despawnDelay",getDespawnDelay());
         tag.putString("TraderType",this.getTraderType());
         tag.putString("AnimalUUID",this.getAnimalIdentifier());
     }
@@ -98,6 +99,7 @@ public class TradesmenEntity extends WanderingTraderEntity {
     @Override
     public void readCustomDataFromTag(CompoundTag tag) {
         super.readCustomDataFromTag(tag);
+        this.setDespawnDelay(tag.getInt("despawnDelay"));
         this.setTraderType(tag.getString("TraderType"));
         this.setAnimalUUID(tag.getString("AnimalUUID"));
     }
