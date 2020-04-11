@@ -1,13 +1,16 @@
 package mod.linguardium.tradesmen.api;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.client.util.math.Vector3f;
-import net.minecraft.client.util.math.Vector4f;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.village.TradeOffers;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Trader {
     private static Int2ObjectMap<TradeOffers.Factory[]> copyToFastUtilMap(ImmutableMap<Integer, TradeOffers.Factory[]> immutableMap) {
@@ -21,9 +24,13 @@ public class Trader {
     public Vector3f hatColor;
     public String clothesTextureId;
     public Vector3f clothesColor;
-    public Int2ObjectMap<TradeOffers.Factory[]> TRADES;
+    public List<Integer> tierTradeCount=new ArrayList<>();
+    public List<List<TradeOffers.Factory>> TRADES;
 
-    public Trader(String name, String TextureId, String clothesTextureId, Vector3f clothesColor, String hatTextureId, Vector3f hatColor, String animal, TradeOffers.Factory[] common_trades, TradeOffers.Factory[] rare_trades) {
+    public Trader(String name, String TextureId, String clothesTextureId, Vector3f clothesColor, String hatTextureId, Vector3f hatColor, String animal, List<List<TradeOffers.Factory>> trades) {
+        this(name,clothesTextureId,clothesTextureId,clothesColor,hatTextureId,hatColor,animal,trades, Lists.newArrayList(3,1));
+    }
+    public Trader(String name, String TextureId, String clothesTextureId, Vector3f clothesColor, String hatTextureId, Vector3f hatColor, String animal, List<List<TradeOffers.Factory>> trades, List<Integer> tradeCount) {
         this.name = new TranslatableText(name);
         this.textureId=TextureId;
         this.clothesTextureId=clothesTextureId;
@@ -31,7 +38,12 @@ public class Trader {
         this.hatTextureId=hatTextureId;
         this.hatColor=hatColor;
         this.animal=animal;
-        this.TRADES = copyToFastUtilMap(ImmutableMap.of(1,common_trades,2,rare_trades));
+        this.tierTradeCount = tradeCount;
+        /*for (int i=1;i<=trades.size();i++) {
+            this.TRADES.putIfAbsent(i,trades[i]);
+        }
+        this.TRADES=copyToFastUtilMap(ImmutableMap.copyOf(TRADES)); // make it immutable? */
+        this.TRADES=trades;
     }
     public Trader() {
         this.name=null;
@@ -41,5 +53,9 @@ public class Trader {
         this.hatTextureId="";
         this.hatColor=WHITE_COLOR;
         this.animal="minecraft:trader_llama";
+    }
+
+    public void setCounts(List<Integer> tradeCounts) {
+        this.tierTradeCount=tradeCounts;
     }
 }

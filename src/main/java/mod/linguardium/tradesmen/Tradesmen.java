@@ -4,15 +4,10 @@ import io.github.cottonmc.libcd.api.tweaker.TweakerManager;
 import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
 import me.sargunvohra.mcmods.autoconfig1u.serializer.JanksonConfigSerializer;
 import mod.linguardium.tradesmen.api.TraderTweaker;
+import mod.linguardium.tradesmen.api.objects.tradeObject;
 import mod.linguardium.tradesmen.config.ModConfig;
 import mod.linguardium.tradesmen.entities.InitEntities;
 import net.fabricmc.api.ModInitializer;
-
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.SpawnEggItem;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,7 +26,8 @@ public class Tradesmen implements ModInitializer {
         log(Level.INFO, "Initializing");
         AutoConfig.register(ModConfig.class, JanksonConfigSerializer::new);
         InitEntities.init();
-        TweakerManager.INSTANCE.addTweaker("Tradesmen.TraderTweaker", new TraderTweaker());
+        tradeObject.init();
+        TweakerManager.INSTANCE.addTweaker("Tradesmen.TraderTweaker", TraderTweaker.INSTANCE);
         log(Level.INFO, "Welcome to The Tradesmen");
     }
     public static ModConfig getConfig() {

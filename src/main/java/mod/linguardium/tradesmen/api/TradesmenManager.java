@@ -5,11 +5,12 @@ import mod.linguardium.tradesmen.Tradesmen;
 import mod.linguardium.tradesmen.entities.InitEntities;
 import mod.linguardium.tradesmen.entities.TradesmenEntity;
 import net.fabricmc.fabric.api.event.world.WorldTickCallback;
-import net.minecraft.entity.*;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnRestriction;
+import net.minecraft.entity.SpawnType;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
@@ -24,9 +25,10 @@ import net.minecraft.world.poi.PointOfInterestStorage;
 import net.minecraft.world.poi.PointOfInterestType;
 import org.apache.logging.log4j.Level;
 
-import java.io.DataOutput;
-import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Optional;
+import java.util.Random;
 
 public class TradesmenManager implements WorldTickCallback {
     private HashMap<World, WorldTradesmenManager> WorldManagers = new HashMap<>();

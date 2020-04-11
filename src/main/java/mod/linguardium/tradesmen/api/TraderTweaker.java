@@ -2,27 +2,34 @@ package mod.linguardium.tradesmen.api;
 
 
 import blue.endless.jankson.JsonObject;
-import blue.endless.jankson.JsonPrimitive;
 import io.github.cottonmc.libcd.api.CDSyntaxError;
 import io.github.cottonmc.libcd.api.tweaker.Tweaker;
 import io.github.cottonmc.libcd.api.tweaker.recipe.RecipeParser;
 import jdk.internal.jline.internal.Nullable;
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
+import jdk.nashorn.internal.runtime.ListAdapter;
+import jdk.nashorn.internal.runtime.ScriptObject;
+import mod.linguardium.tradesmen.api.objects.tradeObject;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.recipe.Recipe;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceNotFoundException;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.village.TradeOffers;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.Executor;
+
+import static mod.linguardium.tradesmen.api.objects.ObjectConversion.toJavaObject;
 
 public class TraderTweaker implements Tweaker {
 
+    public static final TraderTweaker INSTANCE = new TraderTweaker();
+    private TraderTweaker() {}
 
     @Override
     public void prepareReload(ResourceManager resourceManager) {
@@ -48,6 +55,20 @@ public class TraderTweaker implements Tweaker {
     public traderObject makeTrader(String Id) {
         return new traderObject(Id);
     }
+    public void addTrader(traderObject t, tradeObject[][] trades, int[] tradeCounts) {
+        List<List<tradeObject>> tradeObjectLists = new ArrayList<>();
+        List<Integer> counts = new ArrayList<>();
+        for (tradeObject[] trade : trades) {
+            List<tradeObject> tradeObjects = new ArrayList<>();
+            Collections.addAll(tradeObjects, trade);
+            tradeObjectLists.add(tradeObjects);
+        }
+        for (int tradeCount : tradeCounts) {
+            counts.add(tradeCount);
+        }
+        addTrader(t,tradeObjectLists,counts);
+    }
+
     public void addTrader(String Id, String name, String texture, String animal, tradeObject[] common, tradeObject[] rare) throws ResourceNotFoundException, CDSyntaxError {
         if (Id.isEmpty() || TradesmenManager.Traders.containsKey(Id))
             throw(new CDSyntaxError("Trader ID already in use: "+Id));
@@ -60,33 +81,30 @@ public class TraderTweaker implements Tweaker {
             t=t.animal(animal);
         addTrader(t,common,rare);
     }
-    public void addTrader(traderObject t, tradeObject[] common, tradeObject[] rare) {
-        TradesmenTradeOffers.SellItemFactory[] commonTrades = new TradesmenTradeOffers.SellItemFactory[common.length];
-        TradesmenTradeOffers.SellItemFactory[] rareTrades = new TradesmenTradeOffers.SellItemFactory[rare.length];
-        int i=0;
-        for (tradeObject trade : common) {
-            TradesmenTradeOffers.SellItemFactory sale=null;
-            if (!trade.saleItem.isEmpty() && !trade.priceItem[0].isEmpty()) {
-                sale = new TradesmenTradeOffers.SellItemFactory(trade.saleItem, trade.priceItem, trade.maxUses, trade.experience, trade.multiplier);
+    public void addTrader(traderObject t, List<List<tradeObject>> trades, List<Integer> tradeCounts) {
+        List<List<TradeOffers.Factory>> tradeFactories = new ArrayList<List<TradeOffers.Factory>>();
+        for (int i=0;i<trades.size();i++){
+            // Gotta do this because of the GD ScriptObjectMirror that nashborn keeps forcing on me
+            List<tradeObject> tier = (List<tradeObject>)toJavaObject(trades.get(i));
+            List<TradeOffers.Factory> tierFactories = new ArrayList<>();
+            for (tradeObject trade: tier) {
+                TradeOffers.Factory sale = null;
+                if (tradeObject.factories.containsKey(trade.factoryId)) {
+                    sale = tradeObject.factories.getOrDefault(trade.factoryId,(tag)->null).apply(trade.tag);
+                }
+                if (sale != null) {
+                    tierFactories.add(sale);
+                }
             }
-            if (sale != null) {
-                commonTrades[i] = sale;
-            }
-            i++;
-        }
-        i=0;
-        for (tradeObject trade : rare) {
-            TradesmenTradeOffers.SellItemFactory sale=null;
-            if (!trade.saleItem.isEmpty() && !trade.priceItem[0].isEmpty()) {
-                sale = new TradesmenTradeOffers.SellItemFactory(trade.saleItem, trade.priceItem, trade.maxUses, trade.experience, trade.multiplier);
-            }
-            if (sale!=null) {
-                rareTrades[i] = sale;
-            }
-            i++;
+            tradeFactories.add(tierFactories);
         }
 
-        TradesmenManager.Traders.put(t.Id,new Trader(t.name, t.textureId, t.clothesTextureId, t.clothesColor, t.hatTextureId, t.hatColor ,t.animal, commonTrades ,rareTrades));
+        TradesmenManager.Traders.put(t.Id,new Trader(t.name, t.textureId, t.clothesTextureId, t.clothesColor, t.hatTextureId, t.hatColor ,t.animal, tradeFactories, tradeCounts));
+
+    }
+
+    public void addTrader(traderObject t, tradeObject[] common, tradeObject[] rare) {
+        addTrader(t,new tradeObject[][]{common,rare},new int[]{3,1});
     }
     public tradeObject makeTrade() {
         return new tradeObject();
@@ -117,47 +135,7 @@ public class TraderTweaker implements Tweaker {
         return retObj;
     }
 
-    public class tradeObject {
-        ItemStack saleItem=ItemStack.EMPTY;
-        ItemStack[] priceItem= new ItemStack[]{new ItemStack((Item)null,0),new ItemStack((Item)null,0)};
-        Integer maxUses = 1;
-        Integer experience=0;
-        Float multiplier=0.05F;
-        public tradeObject item(Object item) throws CDSyntaxError {
-            saleItem = RecipeParser.processItemStack(item).copy();
-            return this;
-        }
-        public tradeObject price(Object[] price) throws CDSyntaxError {
-            for (int i = 0; i< price.length && i<2 ; i++) {
-                priceItem[i]=RecipeParser.processItemStack(price[i]).copy();
-            }
-            return this;
-        }
-        public tradeObject price(Object price) throws CDSyntaxError {
-            if (price instanceof Integer) {
-                this.priceItem[0] = new ItemStack(Items.EMERALD, (Integer) price);
-            }else {
-                this.priceItem[0] = RecipeParser.processItemStack(price).copy();
-            }
-            return this;
-        }
-        public tradeObject secondPriceStack(Object price) throws CDSyntaxError {
-            priceItem[1] = RecipeParser.processItemStack(price);
-            return this;
-        }
-        public tradeObject count(int count) {
-            this.saleItem.setCount(count);
-            return this;
-        }
-        public tradeObject maxUses(int maxUses) {
-            this.maxUses=maxUses;
-            return this;
-        }
-        public tradeObject experience(int experience) {
-            this.experience=experience;
-            return this;
-        }
-    }
+
     public class traderObject {
         public String name="Tradesman";
         public String animal="minecraft:trader_llama";

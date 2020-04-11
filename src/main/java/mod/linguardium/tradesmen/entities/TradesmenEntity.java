@@ -20,8 +20,11 @@ import net.minecraft.village.TradeOffers;
 import net.minecraft.village.TraderOfferList;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class TradesmenEntity extends WanderingTraderEntity {
     private static final TrackedData<String> TRADER_TYPE= DataTracker.registerData(TradesmenEntity.class, TrackedDataHandlerRegistry.STRING);;
@@ -58,19 +61,19 @@ public class TradesmenEntity extends WanderingTraderEntity {
     }
 
     protected void fillRecipes() {
-        TradeOffers.Factory[] factorys = TradesmenManager.getTraderById(this.getTraderType()).TRADES.get(1);
-        TradeOffers.Factory[] factorys2 = TradesmenManager.getTraderById(this.getTraderType()).TRADES.get(2);
-        if (factorys != null && factorys2 != null) {
+        List<List<TradeOffers.Factory>> trades = TradesmenManager.getTraderById(this.getTraderType()).TRADES;
+        List<Integer> tradeCount = TradesmenManager.getTraderById(this.getTraderType()).tierTradeCount;
+        if (trades.size() > 0) {
             TraderOfferList traderOfferList = this.getOffers();
-            if (factorys.length>0) {
-                this.fillRecipesFromPool(traderOfferList, factorys, 3);
-            }
-            if (factorys2.length > 0) {
-                int i = this.random.nextInt(factorys2.length);
-                TradeOffers.Factory factory = factorys2[i];
-                TradeOffer tradeOffer = factory.create(this, this.random);
-                if (tradeOffer != null) {
-                    traderOfferList.add(tradeOffer);
+            for (int tier=0;tier<trades.size() && tier < tradeCount.size();tier++)
+            {
+                // get tradeCount[tier] unique random numbers into an int[] array
+                int[] tradeNums = random.ints(100,0, trades.get(tier).size() ).distinct().limit(tradeCount.get(tier)).toArray();
+                for (int c = 0; c<tradeCount.get(tier) && c<tradeNums.length; c++) {
+                    TradeOffer tradeOffer = trades.get(tier).get(tradeNums[c]).create(this, this.random);
+                    if (tradeOffer!=null) {
+                        traderOfferList.add(tradeOffer);
+                    }
                 }
             }
         }
