@@ -27,6 +27,7 @@ public class Trader {
     public Text name;
     public String textureId;
     public String animal;
+    public int animalCount;
     public String hatTextureId;
     public float[] hatColor;
     public String clothesTextureId;
@@ -34,7 +35,8 @@ public class Trader {
     public List<Integer> tierTradeCount=new ArrayList<>();
     public List<List<TradeOffers.Factory>> TRADES;
     public Boolean isTiered = false;
-    
+    public List<String> allowedWorlds = new ArrayList<>();
+    public boolean godMode;
     /*public Trader(String name, String TextureId, String clothesTextureId, Vector3f clothesColor, String hatTextureId, Vector3f hatColor, String animal, List<List<TradeOffers.Factory>> trades) {
         this(name,clothesTextureId,clothesTextureId,clothesColor,hatTextureId,hatColor,animal,trades, Lists.newArrayList(3,1),false);
     }
@@ -53,6 +55,8 @@ public class Trader {
         this.tierTradeCount = tradeCount;
         this.isTiered=tiered;
         this.TRADES=trades;
+        this.godMode=false;
+        this.animalCount=1;
     }
     public Trader() {
         this.name=new LiteralText("Tradesman");;
@@ -62,6 +66,9 @@ public class Trader {
         this.hatTextureId="";
         this.hatColor=WHITE_COLOR;
         this.animal="minecraft:trader_llama";
+        this.allowedWorlds=new ArrayList<>();
+        this.godMode=false;
+        this.animalCount=1;
     }
     public Trader name(String trader_name) {
         this.name=new TranslatableText(trader_name);
@@ -97,11 +104,27 @@ public class Trader {
         this.animal=animalId;
         return this;
     }
+    public Trader animal(String animalId, Integer count) {
+        this.animal=animalId;
+        this.animalCount=count;
+        return this;
+    }
     public Trader tiered() {
         return tiered(true);
     }
     public Trader tiered(Boolean isTiered) {
         this.isTiered=isTiered;
+        return this;
+    }
+    public Trader addWorld(String id) {
+        this.allowedWorlds.add(id);
+        return this;
+    }
+    public Trader godMode() {
+        return godMode(true);
+    }
+    public Trader godMode(boolean b) {
+        this.godMode=b;
         return this;
     }
     public Trader setTrades(List<List<tradeObject>> trades, List<Integer> tradeCounts) {

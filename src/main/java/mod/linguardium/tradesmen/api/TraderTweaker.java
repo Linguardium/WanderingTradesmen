@@ -5,11 +5,13 @@ import blue.endless.jankson.JsonObject;
 import io.github.cottonmc.libcd.api.CDSyntaxError;
 import io.github.cottonmc.libcd.api.tweaker.Tweaker;
 import jdk.internal.jline.internal.Nullable;
+import mod.linguardium.tradesmen.Tradesmen;
 import mod.linguardium.tradesmen.api.objects.tradeObject;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceNotFoundException;
 import net.minecraft.village.TradeOffers;
+import org.apache.logging.log4j.Level;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,7 +37,11 @@ public class TraderTweaker implements Tweaker {
 
     @Override
     public String getApplyMessage() {
-        return String.valueOf(TradesmenManager.Traders.size()-1) + " traders";
+        if (TradesmenManager.Traders.size() < 1) {
+            Tradesmen.log(Level.ERROR,"Failed to load default trader. This will cause problems.");
+        }
+        return String.valueOf(TradesmenManager.Traders.size() - 1) + " traders";
+
     }
 
     @Override
@@ -44,6 +50,9 @@ public class TraderTweaker implements Tweaker {
     }
 
     public void addTrader(String id, Trader t) {
+        if (t.allowedWorlds.size()==0) {
+            t.allowedWorlds.add("minecraft:overworld");
+        }
         TradesmenManager.Traders.put(id,t);
     }
     public Trader makeTrader() {

@@ -15,6 +15,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.SpawnHelper;
@@ -25,10 +26,7 @@ import net.minecraft.world.poi.PointOfInterestStorage;
 import net.minecraft.world.poi.PointOfInterestType;
 import org.apache.logging.log4j.Level;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 public class TradesmenManager implements WorldTickCallback {
     public static final TradesmenManager INSTANCE = new TradesmenManager();
@@ -50,9 +48,8 @@ public class TradesmenManager implements WorldTickCallback {
         public WorldTradesmenManager(ServerWorld world) {
             this.world = world;
             this.tickCount = 1200;
-            //LevelProperties levelProperties = world.getLevelProperties();
-            this.spawnDelay = Tradesmen.getConfig().spawnDelay;//levelProperties.getWanderingTraderSpawnDelay();
-            this.spawnChance = Tradesmen.getConfig().spawnChance;//levelProperties.getWanderingTraderSpawnChance();
+            this.spawnDelay = Tradesmen.getConfig().spawnDelay;
+            this.spawnChance = Tradesmen.getConfig().spawnChance;
             if (this.spawnDelay == 0 && this.spawnChance == 0) {
                 this.spawnDelay = Tradesmen.getConfig().spawnDelay;
                 this.spawnChance = Tradesmen.getConfig().spawnChance;
@@ -69,7 +66,7 @@ public class TradesmenManager implements WorldTickCallback {
                         this.spawnDelay = Tradesmen.getConfig().spawnDelay;
                         if (this.world.getGameRules().getBoolean(GameRules.DO_MOB_SPAWNING)) {
                             int i = this.spawnChance;
-                            this.spawnChance = MathHelper.clamp(this.spawnChance + 25, 25, 75);
+                            this.spawnChance = MathHelper.clamp(this.spawnChance, 0, 100);
                             if (this.random.nextInt(100) <= i) {
                                 if (this.spawnRoamingTrader()) {
                                     this.spawnChance = Tradesmen.getConfig().spawnChance;
@@ -87,32 +84,44 @@ public class TradesmenManager implements WorldTickCallback {
             if (playerEntity == null) {
                 return true;
             } else {
+                List<String> allowedTraderTypes = new ArrayList<>();
+                Traders.forEach((id,trader)->{
+                    if ( !id.equals("default:default_trader") &&
+                            (trader.allowedWorlds.contains("*") ||
+                            trader.allowedWorlds.contains(Registry.DIMENSION_TYPE.getId(world.dimension.getType()).toString()))) {
+                        allowedTraderTypes.add(id);
+                    }
+
+                });
+                if (allowedTraderTypes.size() < 1) {
+                    return true;
+                }
                 BlockPos blockPos = playerEntity.getBlockPos();
-                //int i = true;
+
+                // spawn a distance from the player or from a meeting POI type
+                // currently only village bells
                 PointOfInterestStorage pointOfInterestStorage = this.world.getPointOfInterestStorage();
                 Optional<BlockPos> optional = pointOfInterestStorage.getPosition(PointOfInterestType.MEETING.getCompletionCondition(), (blockPosx) -> {
                     return true;
                 }, blockPos, 48, PointOfInterestStorage.OccupationStatus.ANY);
                 BlockPos blockPos2 = (BlockPos)optional.orElse(blockPos);
-                BlockPos blockPos3 = this.getPosDistanceFrom(blockPos2, 48);
-                if (blockPos3 != null && this.method_23279(blockPos3)) {
+                BlockPos blockPos3 = this.getPosDistanceFrom(blockPos2, 25);
+                if (blockPos3 != null) {
                     if (this.world.getBiome(blockPos3) == Biomes.THE_VOID) {
                         return false;
                     }
 
                     TradesmenEntity traderEntity = (TradesmenEntity) InitEntities.TRADESMEN_ENTITY_TYPE.spawn(this.world, (CompoundTag)null, (Text)null, (PlayerEntity)null, blockPos3, SpawnType.EVENT, false, false);
                     if (traderEntity != null) {
-                        if (Traders.size() > 1) {
-                            traderEntity.setTraderType(
-                                    Traders.keySet().stream().filter(id -> !("default:default_trader".equalsIgnoreCase(id))).toArray()[world.random.nextInt(Traders.size()-1)].toString()
-                            );
+                        traderEntity.setTraderType(allowedTraderTypes.get(world.random.nextInt(allowedTraderTypes.size())));
+                        for (int i=0;i<getTraderById(traderEntity.getTraderType()).animalCount; i++) {
+                            this.SpawnAnimal(traderEntity.getTraderAnimal(),traderEntity, 4);
                         }
-                        this.SpawnAnimal(traderEntity.getTraderAnimal(),traderEntity, 4);
 
-                        //this.world.getLevelProperties().setWanderingTraderId(wanderingTraderEntity.getUuid());
                         traderEntity.setDespawnDelay((int)(Tradesmen.getConfig().spawnDelay*0.75F));
                         traderEntity.setWanderTarget(blockPos2);
                         traderEntity.setPositionTarget(blockPos2, 16);
+                        traderEntity.setInvulnerable(getTraderById(traderEntity.getTraderType()).godMode);
                         return true;
                     }
                 }
@@ -121,14 +130,30 @@ public class TradesmenManager implements WorldTickCallback {
             }
         }
         private void SpawnAnimal(String AnimalId, TradesmenEntity ownerTrader, int distance) {
+            if (AnimalId.isEmpty())
+                return;
             BlockPos blockPos = this.getPosDistanceFrom(new BlockPos(ownerTrader), distance);
             if (blockPos != null) {
                 MobEntity traderAnimalEntity = (MobEntity)(EntityType.get(AnimalId).orElse(EntityType.TRADER_LLAMA)).spawn(this.world, (CompoundTag)null, (Text)null, (PlayerEntity)null, blockPos, SpawnType.EVENT, false, false);
                 if (traderAnimalEntity != null) {
                     traderAnimalEntity.attachLeash(ownerTrader, true);
-                    ownerTrader.setAnimalUUID(traderAnimalEntity.getUuidAsString());
+                    ownerTrader.addAnimalUUID(traderAnimalEntity.getUuidAsString());
                 }
             }
+        }
+        @Nullable
+        private BlockPos getSpawnableHeight(BlockPos pos, int vDistance) {
+            for (int y = 0; y < vDistance; y++) {
+                if (SpawnHelper.canSpawn(SpawnRestriction.Location.ON_GROUND, this.world, pos.add(0,y,0), InitEntities.TRADESMEN_ENTITY_TYPE)) {
+                    return pos.add(0,y,0);
+                }
+            }
+            for (int y = -1; y > -vDistance; y--) {
+                if (SpawnHelper.canSpawn(SpawnRestriction.Location.ON_GROUND, this.world, pos.add(0,y,0), InitEntities.TRADESMEN_ENTITY_TYPE)) {
+                    return pos.add(0,y,0);
+                }
+            }
+            return null;
         }
         @Nullable
         private BlockPos getPosDistanceFrom(BlockPos blockPos, int distance) {
@@ -137,16 +162,15 @@ public class TradesmenManager implements WorldTickCallback {
             for(int j = 0; j < 10; ++j) {
                 int k = blockPos.getX() + this.random.nextInt(distance * 2) - distance;
                 int l = blockPos.getZ() + this.random.nextInt(distance * 2) - distance;
-                int m = this.world.getTopY(Heightmap.Type.WORLD_SURFACE, k, l);
-                BlockPos blockPos3 = new BlockPos(k, m, l);
-                if (SpawnHelper.canSpawn(SpawnRestriction.Location.ON_GROUND, this.world, blockPos3, InitEntities.TRADESMEN_ENTITY_TYPE)) {
-                    blockPos2 = blockPos3;
+                blockPos2 = getSpawnableHeight(new BlockPos(k,blockPos.getY(),l),distance);
+                if (blockPos2 != null) {
                     break;
                 }
             }
 
             return blockPos2;
         }
+
         private boolean method_23279(BlockPos blockPos) {
             Iterator var2 = BlockPos.iterate(blockPos, blockPos.add(1, 2, 1)).iterator();
 
@@ -170,12 +194,10 @@ public class TradesmenManager implements WorldTickCallback {
             return;
         }
         ServerWorld sWorld = (ServerWorld)world;
-        if (sWorld.dimension.getType() == DimensionType.OVERWORLD) {
-            if (!WorldManagers.containsKey(sWorld)) {
-                WorldManagers.put(world, new WorldTradesmenManager(sWorld));
-            }
-            WorldManagers.get(sWorld).tick();
+        if (!WorldManagers.containsKey(sWorld)) {
+            WorldManagers.put(world, new WorldTradesmenManager(sWorld));
         }
+        WorldManagers.get(sWorld).tick();
     }
 
 }

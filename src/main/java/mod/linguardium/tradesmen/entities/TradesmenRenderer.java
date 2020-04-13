@@ -1,15 +1,8 @@
 package mod.linguardium.tradesmen.entities;
 
 import mod.linguardium.tradesmen.api.TradesmenManager;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.MobEntityRenderer;
-import net.minecraft.client.render.entity.VillagerEntityRenderer;
-import net.minecraft.client.render.entity.WanderingTraderEntityRenderer;
-import net.minecraft.client.render.entity.feature.VillagerClothingFeatureRenderer;
-import net.minecraft.client.render.entity.model.VillagerResemblingModel;
-import net.minecraft.client.texture.TextureManager;
-import net.minecraft.resource.ReloadableResourceManager;
 import net.minecraft.util.Identifier;
 
 public class TradesmenRenderer extends MobEntityRenderer<TradesmenEntity, TradesmenEntityModel<TradesmenEntity>> {

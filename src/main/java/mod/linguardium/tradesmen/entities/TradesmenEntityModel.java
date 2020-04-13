@@ -11,8 +11,8 @@ import net.minecraft.util.math.MathHelper;
 
 public class TradesmenEntityModel<T extends Entity> extends CompositeEntityModel<T> implements ModelWithHead, ModelWithHat {
     protected ModelPart head;
-    protected ModelPart field_17141;
-    protected final ModelPart field_17142;
+    protected ModelPart hat;
+    protected final ModelPart hatpart;
     protected final ModelPart torso;
     protected final ModelPart robe;
     protected final ModelPart arms;
@@ -29,15 +29,15 @@ public class TradesmenEntityModel<T extends Entity> extends CompositeEntityModel
         this.head = (new ModelPart(this)).setTextureSize(textureWidth, textureHeight);
         this.head.setPivot(0.0F, 0.0F, 0.0F);
         this.head.setTextureOffset(0, 0).addCuboid(-4.0F, -10.0F, -4.0F, 8.0F, 10.0F, 8.0F, scale);
-        this.field_17141 = (new ModelPart(this)).setTextureSize(textureWidth, textureHeight);
-        this.field_17141.setPivot(0.0F, 0.0F, 0.0F);
-        this.field_17141.setTextureOffset(32, 0).addCuboid(-4.0F, -10.0F, -4.0F, 8.0F, 10.0F, 8.0F, scale + 0.5F);
-        this.head.addChild(this.field_17141);
-        this.field_17142 = (new ModelPart(this)).setTextureSize(textureWidth, textureHeight);
-        this.field_17142.setPivot(0.0F, 0.0F, 0.0F);
-        this.field_17142.setTextureOffset(30, 47).addCuboid(-8.0F, -8.0F, -6.0F, 16.0F, 16.0F, 1.0F, scale);
-        this.field_17142.pitch = -1.5707964F;
-        this.field_17141.addChild(this.field_17142);
+        this.hat = (new ModelPart(this)).setTextureSize(textureWidth, textureHeight);
+        this.hat.setPivot(0.0F, 0.0F, 0.0F);
+        this.hat.setTextureOffset(32, 0).addCuboid(-4.0F, -10.0F, -4.0F, 8.0F, 10.0F, 8.0F, scale + 0.5F);
+        this.head.addChild(this.hat);
+        this.hatpart = (new ModelPart(this)).setTextureSize(textureWidth, textureHeight);
+        this.hatpart.setPivot(0.0F, 0.0F, 0.0F);
+        this.hatpart.setTextureOffset(30, 47).addCuboid(-8.0F, -8.0F, -6.0F, 16.0F, 16.0F, 1.0F, scale);
+        this.hatpart.pitch = -1.5707964F;
+        this.hat.addChild(this.hatpart);
         this.nose = (new ModelPart(this)).setTextureSize(textureWidth, textureHeight);
         this.nose.setPivot(0.0F, -2.0F, 0.0F);
         this.nose.setTextureOffset(24, 0).addCuboid(-1.0F, -1.0F, -5.0F, 2.0F, 2.0F, 2.0F, scale);
@@ -68,14 +68,14 @@ public class TradesmenEntityModel<T extends Entity> extends CompositeEntityModel
     }
 
     public void setAngles(T entity, float limbAngle, float limbDistance, float customAngle, float headYaw, float headPitch) {
-        boolean bl = false;
+        boolean stillRollin = false;
         if (entity instanceof AbstractTraderEntity) {
-            bl = ((AbstractTraderEntity)entity).getHeadRollingTimeLeft() > 0;
+            stillRollin = ((AbstractTraderEntity)entity).getHeadRollingTimeLeft() > 0;
         }
 
         this.head.yaw = headYaw * 0.017453292F;
         this.head.pitch = headPitch * 0.017453292F;
-        if (bl) {
+        if (stillRollin) {
             this.head.roll = 0.3F * MathHelper.sin(0.45F * customAngle);
             this.head.pitch = 0.4F;
         } else {
@@ -97,7 +97,7 @@ public class TradesmenEntityModel<T extends Entity> extends CompositeEntityModel
 
     public void setHatVisible(boolean visible) {
         this.head.visible = visible;
-        this.field_17141.visible = visible;
-        this.field_17142.visible = visible;
+        this.hat.visible = visible;
+        this.hatpart.visible = visible;
     }
 }
