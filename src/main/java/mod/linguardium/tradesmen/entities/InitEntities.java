@@ -17,9 +17,7 @@ public class InitEntities {
                     new Identifier(Tradesmen.MOD_ID, "tradesmen_seller"),
                     FabricEntityTypeBuilder.create(EntityCategory.MISC, TradesmenEntity::new).size(EntityDimensions.fixed(0.6F, 1.95F)).build()
             );
-    public static final TradesmenManager TRADESMEN_MANAGER = new TradesmenManager();
     public static void init() {
 
-        WorldTickCallback.EVENT.register(TRADESMEN_MANAGER);
     }
 }

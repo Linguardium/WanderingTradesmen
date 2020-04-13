@@ -2,16 +2,22 @@ package mod.linguardium.tradesmen.api.objects;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
+import net.fabricmc.loader.util.sat4j.core.Vec;
+import net.minecraft.client.util.math.Vector3f;
+
+import java.io.InvalidObjectException;
 import java.util.List;
 import java.util.Map;
+
 
 public class ObjectConversion {
     /*
         retrieved from https://stackoverflow.com/questions/33632420/nashorn-scriptobjectmirror-js-java-type-conversion
         posted by user Igor: https://stackoverflow.com/users/1306536/igor
      */
+    @SuppressWarnings("removal")
     public static Object toJavaObject(Object scriptObj) {
         if (scriptObj instanceof ScriptObjectMirror) {
             ScriptObjectMirror scriptObjectMirror = (ScriptObjectMirror) scriptObj;
@@ -32,4 +38,5 @@ public class ObjectConversion {
             return scriptObj;
         }
     }
+
 }

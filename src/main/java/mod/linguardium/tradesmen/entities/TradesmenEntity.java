@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 
 public class TradesmenEntity extends WanderingTraderEntity {
     private static final TrackedData<String> TRADER_TYPE= DataTracker.registerData(TradesmenEntity.class, TrackedDataHandlerRegistry.STRING);;
+    private static final TrackedData<Integer> TRADER_TIER = DataTracker.registerData(TradesmenEntity.class, TrackedDataHandlerRegistry.INTEGER);;
     private static final TrackedData<String> TRADER_SPAWNED_ANIMAL= DataTracker.registerData(TradesmenEntity.class, TrackedDataHandlerRegistry.STRING);;
     private int despawnDelay;
 
@@ -36,6 +37,12 @@ public class TradesmenEntity extends WanderingTraderEntity {
     }
     public void setTraderType(String type) {
         this.getDataTracker().set(TRADER_TYPE,type);
+    }
+    public Integer getTraderTier() {
+        return this.getDataTracker().get(TRADER_TIER);
+    }
+    public void setTraderTier(Integer tier) {
+        this.getDataTracker().set(TRADER_TIER,tier);
     }
     public String getTraderType() {
         return this.getDataTracker().get(TRADER_TYPE);
@@ -65,7 +72,7 @@ public class TradesmenEntity extends WanderingTraderEntity {
         List<Integer> tradeCount = TradesmenManager.getTraderById(this.getTraderType()).tierTradeCount;
         if (trades.size() > 0) {
             TraderOfferList traderOfferList = this.getOffers();
-            for (int tier=0;tier<trades.size() && tier < tradeCount.size();tier++)
+            for (int tier=0;tier<trades.size() && tier < tradeCount.size() && (tier<=this.getTraderTier() || !TradesmenManager.getTraderById(this.getTraderType()).isTiered) ;tier++)
             {
                 // get tradeCount[tier] unique random numbers into an int[] array
                 int[] tradeNums = random.ints(100,0, trades.get(tier).size() ).distinct().limit(tradeCount.get(tier)).toArray();
@@ -89,6 +96,7 @@ public class TradesmenEntity extends WanderingTraderEntity {
         super.initDataTracker();
         this.getDataTracker().startTracking(TRADER_TYPE,"");
         this.getDataTracker().startTracking(TRADER_SPAWNED_ANIMAL,null);
+        this.getDataTracker().startTracking(TRADER_TIER,this.world.random.nextInt(5));
     }
 
     @Override
@@ -97,6 +105,7 @@ public class TradesmenEntity extends WanderingTraderEntity {
         tag.putInt("despawnDelay",getDespawnDelay());
         tag.putString("TraderType",this.getTraderType());
         tag.putString("AnimalUUID",this.getAnimalIdentifier());
+        tag.putInt("TraderTier",this.getTraderTier());
     }
 
     @Override
@@ -104,6 +113,7 @@ public class TradesmenEntity extends WanderingTraderEntity {
         super.readCustomDataFromTag(tag);
         this.setDespawnDelay(tag.getInt("despawnDelay"));
         this.setTraderType(tag.getString("TraderType"));
+        this.setTraderTier(tag.getInt("TraderTier"));
         this.setAnimalUUID(tag.getString("AnimalUUID"));
     }
 

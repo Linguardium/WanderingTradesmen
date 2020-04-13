@@ -2,6 +2,7 @@ package mod.linguardium.tradesmen.api;
 
 import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
+import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.InfoEnchantment;
@@ -140,7 +141,7 @@ public class TradesmenTradeOffers {
             }
             if (doubleTreasureCost) {
                 if (enchantment.isTreasure()) {
-                    price0.setCount(price[0].getCount()*2);
+                    price0.setCount(price0.getCount()*2);
                 }
             }
 
@@ -197,45 +198,46 @@ public class TradesmenTradeOffers {
     /*
     TODO below
      */
-    static class SellDyedArmorFactory implements TradeOffers.Factory {
-        private final Item sell;
-        private final int price;
+    public static class SellDyedItemFactory implements TradeOffers.Factory {
+        private final ItemStack sell;
+        private final ItemStack[] price;
         private final int maxUses;
         private final int experience;
-
-        public SellDyedArmorFactory(Item item, int price) {
-            this(item, price, 12, 1);
-        }
-
-        public SellDyedArmorFactory(Item item, int price, int maxUses, int experience) {
+        private final float priceMultiplier;
+        private final int color;
+        public SellDyedItemFactory(ItemStack item, ItemStack[] price, int maxUses, int experience, float priceMultiplier, int color) {
             this.sell = item;
             this.price = price;
             this.maxUses = maxUses;
             this.experience = experience;
+            this.priceMultiplier=priceMultiplier;
+            this.color = color;
         }
 
         public TradeOffer create(Entity entity, Random random) {
-            ItemStack itemStack = new ItemStack(Items.EMERALD, this.price);
-            ItemStack itemStack2 = new ItemStack(this.sell);
-            if (this.sell instanceof DyeableArmorItem) {
-                List<DyeItem> list = Lists.newArrayList();
-                list.add(getDye(random));
-                if (random.nextFloat() > 0.7F) {
+            ItemStack saleItem = this.sell.copy();
+            if (saleItem.getItem() instanceof DyeableItem) {
+                if (this.color < 0) {
+                    List<DyeItem> list = Lists.newArrayList();
                     list.add(getDye(random));
-                }
+                    if (random.nextFloat() > 0.7F) {
+                        list.add(getDye(random));
+                    }
 
-                if (random.nextFloat() > 0.8F) {
-                    list.add(getDye(random));
+                    if (random.nextFloat() > 0.8F) {
+                        list.add(getDye(random));
+                    }
+                    saleItem = DyeableItem.blendAndSetColor(saleItem, list);
+                }else {
+                    ((DyeableItem) saleItem.getItem()).setColor(saleItem,this.color);
                 }
-
-                itemStack2 = DyeableItem.blendAndSetColor(itemStack2, list);
             }
 
-            return new TradeOffer(itemStack, itemStack2, this.maxUses, this.experience, 0.2F);
+            return new TradeOffer(price[0].copy(),price[1].copy(),saleItem, this.maxUses, this.experience, this.priceMultiplier);
         }
 
         private static DyeItem getDye(Random random) {
-            return DyeItem.byColor(DyeColor.byId(random.nextInt(16)));
+            return DyeItem.byColor(DyeColor.byId(random.nextInt(DyeColor.values().length)));
         }
     }
 }

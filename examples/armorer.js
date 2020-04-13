@@ -1,11 +1,12 @@
 var TraderTweaker = libcd.require("Tradesmen.TraderTweaker");
 
-TraderTweaker.addTrader( TraderTweaker.makeTrader("tradesmen:master_armorer")
+TraderTweaker.addTrader("tradesmen:master_armorer", TraderTweaker.makeTrader().tiered()
                             .name("entity.minecraft.villager.armorer")
                             .texture("minecraft:textures/entity/villager/villager.png")
-                            .clothes("minecraft:textures/entity/villager/type/taiga.png")
-                            .hat("minecraft:textures/entity/villager/profession/armorer.png"),
-                            [
+                            .clothes("minecraft:textures/entity/villager/profession/armorer.png")
+                            .clothes([0.5,0.5,0.5])
+                            .hat("tradesmen:textures/entity/hats/eyepatch.png")
+                            .setTrades([
         [TraderTweaker.makeTrade().item("minecraft:emerald").price("minecraft:coal@15").maxUses(16).experience(2),
         TraderTweaker.makeTrade().item("minecraft:iron_boots").price(4).maxUses(12).priceMultiplier(0.2),
         TraderTweaker.makeTrade().item("minecraft:iron_leggings").price(7).maxUses(12).priceMultiplier(0.2),
@@ -29,5 +30,5 @@ TraderTweaker.addTrader( TraderTweaker.makeTrader("tradesmen:master_armorer")
         [TraderTweaker.makeTrade().randomEnchantmentItemTrade().item("minecraft:diamond_helmet").experience(30).randomPrice(8,64).maxUses(3).priceMultiplier(0.2),
         TraderTweaker.makeTrade().randomEnchantmentItemTrade().item("minecraft:diamond_chestplate").experience(30).randomPrice(16,64).maxUses(3).priceMultiplier(0.2)]
         ],
-        [2,2,2,2,2]);
+        [2,2,2,2,2]));
 

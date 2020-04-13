@@ -1,11 +1,12 @@
 var TraderTweaker = libcd.require("Tradesmen.TraderTweaker");
 
-TraderTweaker.addTrader( TraderTweaker.makeTrader("tradesmen:master_librarian")
+TraderTweaker.addTrader("tradesmen:master_librarian", TraderTweaker.makeTrader()
                             .name("entity.minecraft.villager.librarian")
                             .texture("minecraft:textures/entity/villager/villager.png")
                             .clothes("minecraft:textures/entity/villager/type/taiga.png")
-                            .hat("minecraft:textures/entity/villager/profession/librarian.png"),
-                            [
+                            .hat("minecraft:textures/entity/villager/profession/librarian.png",[1.0,0.5,0.5])
+                            .tiered()
+                            .setTrades([
         [TraderTweaker.makeTrade().item("minecraft:emerald").price("minecraft:paper@24").maxUses(16).experience(2),
         TraderTweaker.makeTrade().randomEnchantedBookTrade().secondPrice("minecraft:book"),
         TraderTweaker.makeTrade().item("minecraft:bookshelf").price(9).maxUses(12)],
@@ -24,5 +25,6 @@ TraderTweaker.addTrader( TraderTweaker.makeTrader("tradesmen:master_librarian")
         TraderTweaker.makeTrade().item("minecraft:compass").price(4).experience(15)],
 
         [TraderTweaker.makeTrade().item("minecraft:name_tag").price(20).experience(30)]],
-        [2,2,2,2,2]);
+        [2,2,2,2,2])
+        );
 

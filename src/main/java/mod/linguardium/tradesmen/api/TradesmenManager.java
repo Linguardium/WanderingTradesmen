@@ -31,9 +31,10 @@ import java.util.Optional;
 import java.util.Random;
 
 public class TradesmenManager implements WorldTickCallback {
+    public static final TradesmenManager INSTANCE = new TradesmenManager();
     private HashMap<World, WorldTradesmenManager> WorldManagers = new HashMap<>();
     public static HashMap<String, Trader> Traders = new HashMap<>();
-    public TradesmenManager() {
+    private TradesmenManager() {
         Tradesmen.log(Level.INFO,"Trader Manager Initialized");
     }
     public static Trader getTraderById(String Id) {
@@ -165,7 +166,7 @@ public class TradesmenManager implements WorldTickCallback {
 
     @Override
     public void tick(World world) {
-        if (world.isClient()) {
+        if (world.isClient() || Tradesmen.getConfig().disableWanderingTradesmen ) {
             return;
         }
         ServerWorld sWorld = (ServerWorld)world;

@@ -4,33 +4,45 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import mod.linguardium.tradesmen.api.objects.ParseColor;
+import mod.linguardium.tradesmen.api.objects.tradeObject;
 import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.village.TradeOffers;
 
+import java.io.InvalidObjectException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static mod.linguardium.tradesmen.api.objects.ObjectConversion.toJavaObject;
 
 public class Trader {
     private static Int2ObjectMap<TradeOffers.Factory[]> copyToFastUtilMap(ImmutableMap<Integer, TradeOffers.Factory[]> immutableMap) {
         return new Int2ObjectOpenHashMap(immutableMap);
     }
-    public static final Vector3f WHITE_COLOR = new Vector3f(1.0F,1.0F,1.0F);
+    public static final float[] WHITE_COLOR = new float[]{1.0F,1.0F,1.0F};
+    
     public Text name;
     public String textureId;
     public String animal;
     public String hatTextureId;
-    public Vector3f hatColor;
+    public float[] hatColor;
     public String clothesTextureId;
-    public Vector3f clothesColor;
+    public float[] clothesColor;
     public List<Integer> tierTradeCount=new ArrayList<>();
     public List<List<TradeOffers.Factory>> TRADES;
-
-    public Trader(String name, String TextureId, String clothesTextureId, Vector3f clothesColor, String hatTextureId, Vector3f hatColor, String animal, List<List<TradeOffers.Factory>> trades) {
-        this(name,clothesTextureId,clothesTextureId,clothesColor,hatTextureId,hatColor,animal,trades, Lists.newArrayList(3,1));
+    public Boolean isTiered = false;
+    
+    /*public Trader(String name, String TextureId, String clothesTextureId, Vector3f clothesColor, String hatTextureId, Vector3f hatColor, String animal, List<List<TradeOffers.Factory>> trades) {
+        this(name,clothesTextureId,clothesTextureId,clothesColor,hatTextureId,hatColor,animal,trades, Lists.newArrayList(3,1),false);
     }
     public Trader(String name, String TextureId, String clothesTextureId, Vector3f clothesColor, String hatTextureId, Vector3f hatColor, String animal, List<List<TradeOffers.Factory>> trades, List<Integer> tradeCount) {
+        this(name,clothesTextureId,clothesTextureId,clothesColor,hatTextureId,hatColor,animal,trades, tradeCount,false);
+    }*/
+
+    public Trader(String name, String TextureId, String clothesTextureId, float[] clothesColor, String hatTextureId, float[] hatColor, String animal, List<List<TradeOffers.Factory>> trades, List<Integer> tradeCount, Boolean tiered) {
         this.name = new TranslatableText(name);
         this.textureId=TextureId;
         this.clothesTextureId=clothesTextureId;
@@ -39,14 +51,11 @@ public class Trader {
         this.hatColor=hatColor;
         this.animal=animal;
         this.tierTradeCount = tradeCount;
-        /*for (int i=1;i<=trades.size();i++) {
-            this.TRADES.putIfAbsent(i,trades[i]);
-        }
-        this.TRADES=copyToFastUtilMap(ImmutableMap.copyOf(TRADES)); // make it immutable? */
+        this.isTiered=tiered;
         this.TRADES=trades;
     }
     public Trader() {
-        this.name=null;
+        this.name=new LiteralText("Tradesman");;
         this.textureId="tradesmen:textures/entity/skivvies.png";
         this.clothesTextureId="minecraft:textures/entity/wandering_trader.png";
         this.clothesColor=WHITE_COLOR;
@@ -54,8 +63,73 @@ public class Trader {
         this.hatColor=WHITE_COLOR;
         this.animal="minecraft:trader_llama";
     }
-
-    public void setCounts(List<Integer> tradeCounts) {
-        this.tierTradeCount=tradeCounts;
+    public Trader name(String trader_name) {
+        this.name=new TranslatableText(trader_name);
+        return this;
     }
+    public Trader texture(String texId) {
+        this.textureId=texId;
+        return this;
+    }
+    public Trader clothes(String texId, Object color) throws InvalidObjectException {
+        return this.clothes(texId).clothes(color);
+    }
+    public Trader clothes(Object color) throws InvalidObjectException {
+        this.clothesColor=ParseColor.toFloat(color);
+        return this;
+    }
+    public Trader clothes(String texId) {
+        this.clothesTextureId=texId;
+        return this;
+    }
+    public Trader hat(String texId, Object color) throws InvalidObjectException {
+        return this.hat(texId).hat(color);
+    }
+    public Trader hat(Object color) throws InvalidObjectException {
+        this.hatColor=ParseColor.toFloat(color);
+        return this;
+    }
+    public Trader hat(String texId) {
+        this.hatTextureId=texId;
+        return this;
+    }
+    public Trader animal(String animalId) {
+        this.animal=animalId;
+        return this;
+    }
+    public Trader tiered() {
+        return tiered(true);
+    }
+    public Trader tiered(Boolean isTiered) {
+        this.isTiered=isTiered;
+        return this;
+    }
+    public Trader setTrades(List<List<tradeObject>> trades, List<Integer> tradeCounts) {
+        List<List<TradeOffers.Factory>> tradeFactories = new ArrayList<List<TradeOffers.Factory>>();
+        for (int i=0;i<trades.size();i++){
+            // Gotta do this because of the GD ScriptObjectMirror that nashborn keeps forcing on me
+            List<tradeObject> tier = (List<tradeObject>)toJavaObject(trades.get(i));
+            List<TradeOffers.Factory> tierFactories = new ArrayList<>();
+            for (tradeObject trade: tier) {
+                TradeOffers.Factory sale = null;
+                if (tradeObject.factories.containsKey(trade.factoryId)) {
+                    sale = tradeObject.factories.getOrDefault(trade.factoryId,(tag)->null).apply(trade.tag);
+                }
+                if (sale != null) {
+                    tierFactories.add(sale);
+                }
+            }
+            tradeFactories.add(tierFactories);
+        }
+        this.assignTrades(tradeFactories,tradeCounts);
+        return this;
+    }
+
+    private void assignTrades(List<List<TradeOffers.Factory>> trades, List<Integer> tradeCount) {
+        this.TRADES=trades;
+        this.tierTradeCount=tradeCount;
+    }
+/*    public void setCounts(List<Integer> tradeCounts) {
+        this.tierTradeCount=tradeCounts;
+    }*/
 }

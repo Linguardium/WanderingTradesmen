@@ -1,16 +1,14 @@
 package mod.linguardium.tradesmen.api.objects;
 
-import blue.endless.jankson.JsonObject;
 import io.github.cottonmc.libcd.api.CDSyntaxError;
 import io.github.cottonmc.libcd.api.tweaker.recipe.RecipeParser;
 import mod.linguardium.tradesmen.api.TradesmenTradeOffers;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOffers;
 
+import java.io.InvalidObjectException;
 import java.util.HashMap;
 import java.util.function.Function;
 
@@ -59,7 +57,13 @@ public class tradeObject {
                 return new TradesmenTradeOffers.SellEnchantedItemFactory(ItemStack.fromTag(tag.getCompound("saleItem")), new ItemStack[]{ItemStack.fromTag(tag.getCompound("priceItem1")),ItemStack.fromTag(tag.getCompound("priceItem2"))},treasures,maxUses,experience,priceMultiplier);
             }
         });
-        //registerFactory("tradesmen:randomDyedItem",(tag)->{});
+        registerFactory("tradesmen:randomDyedItem",(tag)->{
+            int maxUses = getIntOrDefault(tag,"maxUses",12);
+            int experience = getIntOrDefault(tag,"experience",1);
+            float priceMultiplier = getFloatOrDefault(tag,"priceMultiplier",0.02F);
+            int dyeColor=getIntOrDefault(tag,"dyeColor",-1);
+            return new TradesmenTradeOffers.SellDyedItemFactory(ItemStack.fromTag(tag.getCompound("saleItem")), new ItemStack[]{ItemStack.fromTag(tag.getCompound("priceItem1")), ItemStack.fromTag(tag.getCompound("priceItem2"))},maxUses,experience,priceMultiplier, dyeColor);
+        });
         registerFactory("tradesmen:randomPotionEffect",(tag)-> {
             int maxUses = getIntOrDefault(tag,"maxUses",12);
             int experience = getIntOrDefault(tag,"experience",1);
@@ -133,7 +137,7 @@ public class tradeObject {
      */
     public tradeObject randomEnchantedBookTrade() {
         this.tag = new CompoundTag();
-        this.priceMultiplier(0.02F);
+        this.priceMultiplier(0.2F);
         this.experience(1);
         this.factoryId="tradesmen:randomEnchantedBook";
         return this;
@@ -143,7 +147,17 @@ public class tradeObject {
         this.factoryId="tradesmen:randomEnchantmentItem";
         return this;
     }
-
+    public tradeObject randomDyedItemTrade() {
+        this.tag=new CompoundTag();
+        this.factoryId="tradesmen:randomDyedItem";
+        return this;
+    }
+    public tradeObject dyedItemTrade(Object color) throws CDSyntaxError, InvalidObjectException {
+        this.factoryId="tradesmen:randomDyedItem";
+        int iColor = ParseColor.toInt(color);
+        this.tag.putInt("dyeColor",iColor);
+        return this;
+    }
     public tradeObject randomPrice(int min, int max) throws CDSyntaxError {
         if (!factoryId.equals("tradesmen:randomEnchantedBook") && !(factoryId.equals("tradesmen:randomEnchantmentItem")))
             throw(new CDSyntaxError("random price cannot be applied to sale type: "+factoryId));
@@ -184,7 +198,7 @@ public class tradeObject {
     /*
             Random Potion Effect Item methods
      */
-    public tradeObject RandomEffectItemTrade() {
+    public tradeObject randomEffectItemTrade() {
         this.tag = new CompoundTag();
         this.priceMultiplier(0.05F);
         this.experience(1);

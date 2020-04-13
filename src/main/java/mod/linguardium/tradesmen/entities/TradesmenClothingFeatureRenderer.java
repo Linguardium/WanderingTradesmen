@@ -1,5 +1,7 @@
 package mod.linguardium.tradesmen.entities;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import mod.linguardium.tradesmen.api.Trader;
 import mod.linguardium.tradesmen.api.TradesmenManager;
 import net.fabricmc.api.EnvType;
@@ -7,14 +9,22 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
+import net.minecraft.client.render.entity.feature.VillagerClothingFeatureRenderer;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.ModelWithHat;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 
 @Environment(EnvType.CLIENT)
 public class TradesmenClothingFeatureRenderer<T extends TradesmenEntity, M extends EntityModel<T> & ModelWithHat> extends FeatureRenderer<T, M> {
-
+    private static final String[] LEVEL_TO_ID = new String[] {
+      "stone",
+       "iron",
+       "gold",
+       "emerald",
+       "diamond"
+    };
     public TradesmenClothingFeatureRenderer(FeatureRendererContext<T, M> featureRendererContext) {
         super(featureRendererContext);
     }
@@ -25,11 +35,14 @@ public class TradesmenClothingFeatureRenderer<T extends TradesmenEntity, M exten
             M entityModel = this.getContextModel();
             entityModel.setHatVisible(true); // show head texture changes
             if (!traderData.clothesTextureId.isEmpty()) {
-                renderModel(entityModel, new Identifier(traderData.clothesTextureId), matrixStack, vertexConsumerProvider, i, livingEntity, traderData.clothesColor.getX(), traderData.clothesColor.getY(), traderData.clothesColor.getZ());
+                renderModel(entityModel, new Identifier(traderData.clothesTextureId), matrixStack, vertexConsumerProvider, i, livingEntity, traderData.clothesColor[0], traderData.clothesColor[1], traderData.clothesColor[2]);
             }
             if (!traderData.hatTextureId.isEmpty()) {
                 // show hat
-                renderModel(entityModel, new Identifier(traderData.hatTextureId), matrixStack, vertexConsumerProvider, i, livingEntity, traderData.hatColor.getX(), traderData.hatColor.getY(), traderData.hatColor.getZ());
+                renderModel(entityModel, new Identifier(traderData.hatTextureId), matrixStack, vertexConsumerProvider, i, livingEntity, traderData.hatColor[0], traderData.hatColor[1], traderData.hatColor[2]);
+            }
+            if (traderData.isTiered) {
+                renderModel(entityModel,new Identifier("minecraft:textures/entity/villager/profession_level/"+LEVEL_TO_ID[Math.min(livingEntity.getTraderTier(),LEVEL_TO_ID.length-1)]+".png"),matrixStack, vertexConsumerProvider, i, livingEntity, 1.0F,1.0F,1.0F);
             }
         }
     }
