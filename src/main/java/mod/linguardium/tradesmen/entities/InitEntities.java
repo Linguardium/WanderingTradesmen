@@ -1,9 +1,7 @@
 package mod.linguardium.tradesmen.entities;
 
 import mod.linguardium.tradesmen.Tradesmen;
-import mod.linguardium.tradesmen.api.TradesmenManager;
 import net.fabricmc.fabric.api.entity.FabricEntityTypeBuilder;
-import net.fabricmc.fabric.api.event.world.WorldTickCallback;
 import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;

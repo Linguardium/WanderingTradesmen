@@ -2,7 +2,6 @@ package mod.linguardium.tradesmen.api;
 
 import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.InfoEnchantment;
@@ -30,6 +29,14 @@ public class TradesmenTradeOffers {
         private int maxUses;
         private int experience;
         private float multiplier;
+        private int randomCostMin=1;
+        private int randomCostMax=64;
+        private boolean randomCost=false;
+        private boolean randomCount=false;
+        private boolean randomSaleItem=false;
+        private boolean randomPriceItem=false;
+        private int randomCountMin=1;
+        private int randomCountMax=64;
 
         public SellItemFactory(SellItemFactory from) {
             this.sell = from.sell;
@@ -56,14 +63,26 @@ public class TradesmenTradeOffers {
         }
 
         public SellItemFactory(ItemStack itemStack, int price, int maxUses, int experience, float multiplier) {
-            this(itemStack,new ItemStack(Items.EMERALD, price), maxUses,experience,multiplier);
+            this(itemStack,new ItemStack[]{new ItemStack(Items.EMERALD, price),ItemStack.EMPTY}, maxUses,experience,multiplier);
         }
         public SellItemFactory(ItemStack itemStack, ItemStack price, int maxUses, int experience) {
-            this(itemStack,price, maxUses,experience,0.05F);
+            this(itemStack,new ItemStack[]{price,ItemStack.EMPTY}, maxUses,experience,0.05F);
         }
 
-        public SellItemFactory(ItemStack itemStack, ItemStack price, int maxUses, int experience, float multiplier) {
-            this(itemStack,new ItemStack[]{price,ItemStack.EMPTY},maxUses,experience,multiplier);
+        public SellItemFactory(ItemStack itemStack, ItemStack[] price, int randomCostMin, int randomCostMax, boolean randomCost, boolean randomCount, int randomCountMin, int randomCountMax, boolean randomSaleItem, boolean randomPriceItem, int maxUses, int experience, float multiplier) {
+            this.sell = itemStack;
+            this.price = price;
+            this.maxUses = maxUses;
+            this.experience = experience;
+            this.multiplier = multiplier;
+            this.randomCost=randomCost;
+            this.randomCount=randomCount;
+            this.randomCostMin=randomCostMin;
+            this.randomCostMax=randomCostMax;
+            this.randomCountMin=randomCountMin;
+            this.randomCountMax=randomCountMax;
+            this.randomSaleItem = randomSaleItem;
+            this.randomPriceItem = randomPriceItem;
         }
         public SellItemFactory(ItemStack itemStack, ItemStack[] price, int maxUses, int experience, float multiplier) {
             this.sell = itemStack;
@@ -74,8 +93,34 @@ public class TradesmenTradeOffers {
         }
 
         public TradeOffer create(Entity entity, Random random) {
-            return new TradeOffer(this.price[0],this.price[1],
-                this.sell, this.maxUses, this.experience, this.multiplier);
+            ItemStack price0 = this.price[0].copy();
+            int priceCount =price0.getCount();
+            if (priceCount <1)
+                priceCount=1;
+
+            if (randomPriceItem) {
+
+                price0=new ItemStack(Registry.ITEM.get(random.nextInt((int)Registry.ITEM.stream().count())),priceCount);
+            }
+            if (price0.isEmpty()) {
+                price0 = new ItemStack(Items.EMERALD,priceCount);
+            }
+            if (this.randomCost) {
+                price0.setCount(random.nextInt((randomCostMax+1)-randomCostMin)+randomCostMin);
+            }
+            ItemStack saleItem = this.sell.copy();
+            int saleCount =saleItem.getCount();
+            if (saleCount <1)
+                saleCount=1;
+
+            if (randomSaleItem) {
+                saleItem=new ItemStack(Registry.ITEM.get(random.nextInt((int)Registry.ITEM.stream().count())),saleCount);
+            }
+            if (randomCount) {
+                saleItem.setCount(random.nextInt((randomCountMax+1)-randomCountMin)+randomCostMin);
+            }
+            return new TradeOffer(price0,this.price[1],
+                saleItem, this.maxUses, this.experience, this.multiplier);
         }
     }
     public static class SellPotionHoldingItemFactory implements TradeOffers.Factory {
@@ -118,8 +163,8 @@ public class TradesmenTradeOffers {
             this.priceMultiplier=priceMultiplier;
             this.randomCost=false;
         }
-        public EnchantBookFactory(ItemStack priceItem, int min, int max, boolean doubleTreasureCost, int maxUses, int experience, float priceMultiplier) {
-            this.price[1] = priceItem;
+        public EnchantBookFactory(ItemStack[] price, int min, int max, boolean doubleTreasureCost, int maxUses, int experience, float priceMultiplier) {
+            this.price = price;
             this.experience=experience;
             this.randomCostMin=min;
             this.randomCostMax=max;
@@ -134,10 +179,13 @@ public class TradesmenTradeOffers {
             ItemStack itemStack = EnchantedBookItem.forEnchantment(new InfoEnchantment(enchantment, enchantmentLevel));
             int cost = 0;
             ItemStack price0 = price[0].copy();
+            if (price0.isEmpty()) {
+                price0=new ItemStack(Items.EMERALD);
+            }
             if (randomCost) {
                 cost = randomCostMin + random.nextInt(5+enchantmentLevel*10)+3*enchantmentLevel;
                 cost = Math.min(Math.max(cost,randomCostMin),randomCostMax);
-                price0=new ItemStack(Items.EMERALD,cost);
+                price0.setCount(cost);
             }
             if (doubleTreasureCost) {
                 if (enchantment.isTreasure()) {
@@ -169,11 +217,11 @@ public class TradesmenTradeOffers {
             this.priceMultiplier = multiplier;
             this.treasure=treasure;
         }
-        public SellEnchantedItemFactory(ItemStack item, ItemStack price, int min, int max, boolean treasure, int maxUses, int experience, float multiplier) {
+        public SellEnchantedItemFactory(ItemStack item, ItemStack[] price, int min, int max, boolean treasure, int maxUses, int experience, float multiplier) {
             this.item = item;
             this.randomCostMin=min;
             this.randomCostMax=max;
-            this.price[1]=price;
+            this.price=price;
             this.maxUses = maxUses;
             this.experience = experience;
             this.priceMultiplier = multiplier;
@@ -184,12 +232,13 @@ public class TradesmenTradeOffers {
             ItemStack enchantedItem = this.item.copy();
             int enchantPower = 5 + random.nextInt(15); // power level
             enchantedItem = EnchantmentHelper.enchant(random, enchantedItem, enchantPower, this.treasure);
-            ItemStack price0;
+            ItemStack price0=price[0];
+            if (price0.isEmpty()) {
+                price0=new ItemStack(Items.EMERALD);
+            }
             if (randomCost) {
                 int cost = Math.min(this.randomCostMin + enchantPower, randomCostMax);
-                price0 = new ItemStack(Items.EMERALD, cost);
-            }else{
-                price0 = price[0].copy();
+                price0.setCount(cost);
             }
             return new TradeOffer(price0, price[1].copy(), enchantedItem, this.maxUses, this.experience, this.priceMultiplier);
         }

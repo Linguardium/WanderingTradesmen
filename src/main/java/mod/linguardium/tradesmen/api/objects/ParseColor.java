@@ -1,6 +1,5 @@
 package mod.linguardium.tradesmen.api.objects;
 
-import jdk.nashorn.internal.runtime.ScriptObject;
 import net.minecraft.client.util.math.Vector3f;
 
 import java.io.InvalidObjectException;

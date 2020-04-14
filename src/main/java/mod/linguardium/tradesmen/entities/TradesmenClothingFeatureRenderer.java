@@ -1,7 +1,5 @@
 package mod.linguardium.tradesmen.entities;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import mod.linguardium.tradesmen.api.Trader;
 import mod.linguardium.tradesmen.api.TradesmenManager;
 import net.fabricmc.api.EnvType;
@@ -9,12 +7,10 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
-import net.minecraft.client.render.entity.feature.VillagerClothingFeatureRenderer;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.ModelWithHat;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Util;
 
 @Environment(EnvType.CLIENT)
 public class TradesmenClothingFeatureRenderer<T extends TradesmenEntity, M extends EntityModel<T> & ModelWithHat> extends FeatureRenderer<T, M> {

@@ -28,18 +28,27 @@ public class tradeObject {
             int maxUses = getIntOrDefault(tag,"maxUses",4);
             int experience = getIntOrDefault(tag,"experience",1);
             float priceMultiplier = getFloatOrDefault(tag,"priceMultiplier",0.05F);
-            return new TradesmenTradeOffers.SellItemFactory(ItemStack.fromTag(tag.getCompound("saleItem")), new ItemStack[]{ItemStack.fromTag(tag.getCompound("priceItem1")), ItemStack.fromTag(tag.getCompound("priceItem2"))}, maxUses,experience,priceMultiplier);
+            boolean randomPrice =getBoolOrDefault(tag,"randomPrice",false);
+            boolean randomCount =getBoolOrDefault(tag,"randomCount",false);
+            boolean randomSaleItem =getBoolOrDefault(tag,"randomSaleItem",false);
+            boolean randomPriceItem =getBoolOrDefault(tag,"randomPriceItem",false);
+            int countMin = getIntOrDefault(tag, "countMin", 1);
+            int countMax = getIntOrDefault(tag, "countMax", 64);
+            int min = getIntOrDefault(tag, "priceMin", 1);
+            int max = getIntOrDefault(tag, "priceMax", 64);
+            return new TradesmenTradeOffers.SellItemFactory(ItemStack.fromTag(tag.getCompound("saleItem")), new ItemStack[]{ItemStack.fromTag(tag.getCompound("priceItem1")), ItemStack.fromTag(tag.getCompound("priceItem2"))}, min, max, randomPrice, randomCount, countMin, countMax, randomSaleItem, randomPriceItem, maxUses, experience, priceMultiplier);
+//            return new TradesmenTradeOffers.SellItemFactory(ItemStack.fromTag(tag.getCompound("saleItem")), new ItemStack[]{ItemStack.fromTag(tag.getCompound("priceItem1")), ItemStack.fromTag(tag.getCompound("priceItem2"))}, maxUses,experience,priceMultiplier);
         });
         registerFactory("tradesmen:randomEnchantedBook",(tag)->{
             int maxUses = getIntOrDefault(tag,"maxUses",12);
             int experience = getIntOrDefault(tag,"experience",1);
             float priceMultiplier = getFloatOrDefault(tag,"priceMultiplier",0.02F);
 
-            if (getBoolOrDefault(tag,"randomPrice",true) && !tag.contains("priceItem1")) {
+            if (getBoolOrDefault(tag,"randomPrice",true)) {
                 int min = getIntOrDefault(tag,"priceMin",2);
                 int max = getIntOrDefault(tag,"priceMax",64);
                 boolean treasureCost = getBoolOrDefault(tag,"doubleTreasureCost",true);
-                return new TradesmenTradeOffers.EnchantBookFactory(ItemStack.fromTag(tag.getCompound("priceItem2")),min , max,treasureCost, maxUses,experience,priceMultiplier);
+                return new TradesmenTradeOffers.EnchantBookFactory(new ItemStack[]{ItemStack.fromTag(tag.getCompound("priceItem1")),ItemStack.fromTag(tag.getCompound("priceItem2"))},min , max,treasureCost, maxUses,experience,priceMultiplier);
             }else{
                 return new TradesmenTradeOffers.EnchantBookFactory(new ItemStack[]{ItemStack.fromTag(tag.getCompound("priceItem1")),ItemStack.fromTag(tag.getCompound("priceItem2"))},maxUses,experience,priceMultiplier);
             }
@@ -49,10 +58,10 @@ public class tradeObject {
             int experience = getIntOrDefault(tag,"experience",1);
             float priceMultiplier = getFloatOrDefault(tag,"priceMultiplier",0.05F);
             boolean treasures = getBoolOrDefault(tag,"enableTreasureEnchants",true);
-            if (getBoolOrDefault(tag,"randomPrice",true) && !tag.contains("priceItem1")) {
+            if (getBoolOrDefault(tag,"randomPrice",true)) {
                 int min = getIntOrDefault(tag,"priceMin",2);
                 int max = getIntOrDefault(tag,"priceMax",64);
-                return new TradesmenTradeOffers.SellEnchantedItemFactory(ItemStack.fromTag(tag.getCompound("saleItem")), ItemStack.fromTag(tag.getCompound("priceItem2")),min , max,treasures, maxUses,experience,priceMultiplier);
+                return new TradesmenTradeOffers.SellEnchantedItemFactory(ItemStack.fromTag(tag.getCompound("saleItem")),  new ItemStack[]{ItemStack.fromTag(tag.getCompound("priceItem1")),ItemStack.fromTag(tag.getCompound("priceItem2"))},min , max,treasures, maxUses,experience,priceMultiplier);
             }else{
                 return new TradesmenTradeOffers.SellEnchantedItemFactory(ItemStack.fromTag(tag.getCompound("saleItem")), new ItemStack[]{ItemStack.fromTag(tag.getCompound("priceItem1")),ItemStack.fromTag(tag.getCompound("priceItem2"))},treasures,maxUses,experience,priceMultiplier);
             }
@@ -115,6 +124,8 @@ public class tradeObject {
     }
     public tradeObject count(int count) {
         ItemStack it = ItemStack.fromTag((CompoundTag) this.tag.get("saleItem"));
+        if (it.isEmpty())
+            it = new ItemStack(Items.DIRT);
         it.setCount(count);
         this.tag.put("saleItem",it.toTag(new CompoundTag()));
         return this;
@@ -158,23 +169,32 @@ public class tradeObject {
         this.tag.putInt("dyeColor",iColor);
         return this;
     }
+    public tradeObject randomCount(int min, int max) throws CDSyntaxError {
+        this.tag.putBoolean("randomCount",true);
+        this.tag.putInt("countMin",min);
+        this.tag.putInt("countMax",max);
+        return this;
+    }
+    public tradeObject randomCount(int max) throws CDSyntaxError {
+        this.tag.putInt("countMax",max);
+        this.tag.putBoolean("countPrice",true);
+        return this;
+    }
+    public tradeObject randomSaleItem() throws CDSyntaxError {
+        this.tag.putBoolean("randomSaleItem",true);
+        return this;
+    }
+    public tradeObject randomPriceItem() throws CDSyntaxError {
+        this.tag.putBoolean("randomPriceItem",true);
+        return this;
+    }
     public tradeObject randomPrice(int min, int max) throws CDSyntaxError {
-        if (!factoryId.equals("tradesmen:randomEnchantedBook") && !(factoryId.equals("tradesmen:randomEnchantmentItem")))
-            throw(new CDSyntaxError("random price cannot be applied to sale type: "+factoryId));
-        if (this.tag.contains("priceItem1")) {
-            this.tag.remove("priceItem1");
-        }
         this.tag.putBoolean("randomPrice",true);
         this.tag.putInt("priceMin",min);
         this.tag.putInt("priceMax",max);
         return this;
     }
     public tradeObject randomPrice(int max) throws CDSyntaxError {
-        if (!factoryId.equals("tradesmen:randomEnchantedBook") && !(factoryId.equals("tradesmen:randomEnchantmentItem")))
-            throw(new CDSyntaxError("random price cannot be applied to sale type: "+factoryId));
-        if (this.tag.contains("priceItem1")) {
-            this.tag.remove("priceItem1");
-        }
         this.tag.putInt("priceMax",max);
         this.tag.putBoolean("randomPrice",true);
         return this;

@@ -2,12 +2,8 @@ package mod.linguardium.tradesmen.api.objects;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
-import net.fabricmc.loader.util.sat4j.core.Vec;
-import net.minecraft.client.util.math.Vector3f;
 
-import java.io.InvalidObjectException;
 import java.util.List;
 import java.util.Map;
 

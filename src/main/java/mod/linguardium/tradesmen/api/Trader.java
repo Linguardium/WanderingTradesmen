@@ -1,12 +1,10 @@
 package mod.linguardium.tradesmen.api;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import mod.linguardium.tradesmen.api.objects.ParseColor;
 import mod.linguardium.tradesmen.api.objects.tradeObject;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -37,12 +35,7 @@ public class Trader {
     public Boolean isTiered = false;
     public List<String> allowedWorlds = new ArrayList<>();
     public boolean godMode;
-    /*public Trader(String name, String TextureId, String clothesTextureId, Vector3f clothesColor, String hatTextureId, Vector3f hatColor, String animal, List<List<TradeOffers.Factory>> trades) {
-        this(name,clothesTextureId,clothesTextureId,clothesColor,hatTextureId,hatColor,animal,trades, Lists.newArrayList(3,1),false);
-    }
-    public Trader(String name, String TextureId, String clothesTextureId, Vector3f clothesColor, String hatTextureId, Vector3f hatColor, String animal, List<List<TradeOffers.Factory>> trades, List<Integer> tradeCount) {
-        this(name,clothesTextureId,clothesTextureId,clothesColor,hatTextureId,hatColor,animal,trades, tradeCount,false);
-    }*/
+
 
     public Trader(String name, String TextureId, String clothesTextureId, float[] clothesColor, String hatTextureId, float[] hatColor, String animal, List<List<TradeOffers.Factory>> trades, List<Integer> tradeCount, Boolean tiered) {
         this.name = new TranslatableText(name);
@@ -155,4 +148,6 @@ public class Trader {
 /*    public void setCounts(List<Integer> tradeCounts) {
         this.tierTradeCount=tradeCounts;
     }*/
+
+
 }
