@@ -16,6 +16,6 @@ public class ModConfig implements ConfigData {
 
     @ConfigEntry.BoundedDiscrete(max=100,min=1)
     public int spawnChance = 25;
-
+    public boolean secrets = false;
 
 }

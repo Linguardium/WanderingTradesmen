@@ -15,6 +15,12 @@ public class InitEntities {
                     new Identifier(Tradesmen.MOD_ID, "tradesmen_seller"),
                     FabricEntityTypeBuilder.create(EntityCategory.MISC, TradesmenEntity::new).size(EntityDimensions.fixed(0.6F, 1.95F)).build()
             );
+    public static final EntityType<TradesmenEntity> SECRET_TRADESMEN_ENTITY_TYPE =
+            Registry.register(
+                    Registry.ENTITY_TYPE,
+                    new Identifier(Tradesmen.MOD_ID, "tradesmen_seller_secret"),
+                    FabricEntityTypeBuilder.create(EntityCategory.MISC, TradesmenEntity::new).size(EntityDimensions.fixed(0.6F, 1.95F)).build()
+            );
     public static void init() {
 
     }

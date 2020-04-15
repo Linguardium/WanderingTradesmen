@@ -1,6 +1,6 @@
 package mod.linguardium.tradesmen.api;
 
-import jdk.internal.jline.internal.Nullable;
+
 import mod.linguardium.tradesmen.Tradesmen;
 import mod.linguardium.tradesmen.entities.InitEntities;
 import mod.linguardium.tradesmen.entities.TradesmenEntity;
@@ -109,7 +109,12 @@ public class TradesmenManager implements WorldTickCallback {
                         return false;
                     }
 
-                    TradesmenEntity traderEntity = (TradesmenEntity) InitEntities.TRADESMEN_ENTITY_TYPE.spawn(this.world, (CompoundTag)null, (Text)null, (PlayerEntity)null, blockPos3, SpawnType.EVENT, false, false);
+                    TradesmenEntity traderEntity=null;
+                    if ((Tradesmen.getConfig().secrets && world.random.nextInt(1000) < 1)) {
+                        traderEntity = (TradesmenEntity) InitEntities.SECRET_TRADESMEN_ENTITY_TYPE.spawn(this.world, (CompoundTag) null, (Text) null, (PlayerEntity) null, blockPos3, SpawnType.EVENT, false, false);
+                    }else {
+                        traderEntity = (TradesmenEntity) InitEntities.TRADESMEN_ENTITY_TYPE.spawn(this.world, (CompoundTag) null, (Text) null, (PlayerEntity) null, blockPos3, SpawnType.EVENT, false, false);
+                    }
                     if (traderEntity != null) {
                         traderEntity.setTraderType(allowedTraderTypes.get(world.random.nextInt(allowedTraderTypes.size())));
                         for (int i=0;i<getTraderById(traderEntity.getTraderType()).animalCount; i++) {
@@ -139,7 +144,7 @@ public class TradesmenManager implements WorldTickCallback {
                 }
             }
         }
-        @Nullable
+
         private BlockPos getSpawnableHeight(BlockPos pos, int vDistance) {
             for (int y = 0; y < vDistance; y++) {
                 if (SpawnHelper.canSpawn(SpawnRestriction.Location.ON_GROUND, this.world, pos.add(0,y,0), InitEntities.TRADESMEN_ENTITY_TYPE)) {
@@ -153,7 +158,7 @@ public class TradesmenManager implements WorldTickCallback {
             }
             return null;
         }
-        @Nullable
+
         private BlockPos getPosDistanceFrom(BlockPos blockPos, int distance) {
             BlockPos blockPos2 = null;
 

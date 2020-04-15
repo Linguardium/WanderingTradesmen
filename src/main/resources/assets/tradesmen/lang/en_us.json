@@ -5,5 +5,6 @@
   "text.autoconfig.tradesmen.option.spawnChance": "Chance (in %%) of spawning a trader",
   "text.autoconfig.tradesmen.option.disableWanderingTrader": "Disable Vanilla Wandering Trader",
   "text.autoconfig.tradesmen.option.disableWanderingTradesmen": "Disable Custom Wandering Tradesmen",
-  "text.autoconfig.tradesmen.option.despawnAnimals": "Despawn trader animal if leashed"
+  "text.autoconfig.tradesmen.option.despawnAnimals": "Despawn trader animal if leashed",
+  "text.autoconfig.tradesmen.option.secrets": "Secrets?"
 }

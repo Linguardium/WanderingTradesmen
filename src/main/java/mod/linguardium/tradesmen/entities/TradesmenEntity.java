@@ -1,6 +1,6 @@
 package mod.linguardium.tradesmen.entities;
 
-import jdk.internal.jline.internal.Nullable;
+
 import mod.linguardium.tradesmen.Tradesmen;
 import mod.linguardium.tradesmen.api.TradesmenManager;
 import net.minecraft.entity.Entity;
@@ -43,7 +43,6 @@ public class TradesmenEntity extends WanderingTraderEntity {
     private static final TrackedData<Integer> TRADER_TIER = DataTracker.registerData(TradesmenEntity.class, TrackedDataHandlerRegistry.INTEGER);;
     private static final TrackedData<CompoundTag> TRADER_SPAWNED_ANIMAL= DataTracker.registerData(TradesmenEntity.class, TrackedDataHandlerRegistry.TAG_COMPOUND);;
     private int despawnDelay;
-    @Nullable
     private BlockPos wanderTarget;
 
     public TradesmenEntity(EntityType<? extends WanderingTraderEntity> entityType, World world) {
@@ -217,7 +216,7 @@ public class TradesmenEntity extends WanderingTraderEntity {
 
     }
 
-    @Nullable
+
     private BlockPos getWanderTarget() {
         return this.wanderTarget;
     }
