@@ -5,6 +5,9 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import mod.linguardium.tradesmen.api.objects.ParseColor;
 import mod.linguardium.tradesmen.api.objects.tradeObject;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -32,6 +35,7 @@ public class Trader {
     public float[] clothesColor;
     public List<Integer> tierTradeCount=new ArrayList<>();
     public List<List<TradeOffers.Factory>> TRADES;
+    List<List<tradeObject>> tObjTrades = new ArrayList<>();
     public Boolean isTiered = false;
     public List<String> allowedWorlds = new ArrayList<>();
     public boolean godMode;
@@ -125,6 +129,7 @@ public class Trader {
         for (int i=0;i<trades.size();i++){
             // Gotta do this because of the GD ScriptObjectMirror that nashborn keeps forcing on me
             List<tradeObject> tier = (List<tradeObject>)toJavaObject(trades.get(i));
+            tObjTrades.add(tier);
             List<TradeOffers.Factory> tierFactories = new ArrayList<>();
             for (tradeObject trade: tier) {
                 TradeOffers.Factory sale = null;
@@ -145,9 +150,64 @@ public class Trader {
         this.TRADES=trades;
         this.tierTradeCount=tradeCount;
     }
-/*    public void setCounts(List<Integer> tradeCounts) {
-        this.tierTradeCount=tradeCounts;
-    }*/
-
+    public static Trader fromClientTag(CompoundTag tag) throws InvalidObjectException {
+        Trader t = new Trader()
+                .name(tag.getString("name"))
+                .texture(tag.getString("textureId"))
+                .clothes(tag.getString("clothesId"))
+                .clothes(tag.getInt("clothesColor"))
+                .hat(tag.getString("hatId"))
+                .hat(tag.getInt("hatColor"))
+                .tiered(tag.getBoolean("tiered"));
+        List<List<tradeObject>> trades = new ArrayList<>();
+        ListTag tradeSetsTag = tag.getList("trades",9); // List Tag Type
+        for (Tag tradesTag : tradeSetsTag) {
+            List<tradeObject> tObjList = new ArrayList<>();
+            if (tradesTag instanceof ListTag) {
+                ListTag tradesListTag = (ListTag)tradesTag;
+                for (Tag tradeObjectTag : tradesListTag) {
+                    if (tradeObjectTag instanceof CompoundTag) {
+                        tradeObject tObj = new tradeObject();
+                        tObj.tag = ((CompoundTag) tradeObjectTag).copy();
+                        tObj.factoryId=((CompoundTag) tradeObjectTag).getString("factoryId");
+                        tObjList.add(tObj);
+                    }
+                }
+            }
+            if (tObjList.size()>0) {
+                trades.add(tObjList);
+            }
+        }
+        List<Integer> counts = new ArrayList<>();
+        for (int c : tag.getIntArray("tradeCount")) {
+            counts.add(c);
+        }
+        t.setTrades(trades, counts);
+        return t;
+    }
+    public CompoundTag toClientTag(CompoundTag tag) throws InvalidObjectException {
+        tag.putString("name",this.name.asString());
+        tag.putString("textureId",this.textureId);
+        tag.putString("clothesId",this.clothesTextureId);
+        tag.putInt("clothesColor",ParseColor.toInt(this.clothesColor));
+        tag.putString("hatId",this.hatTextureId);
+        tag.putInt("hatColor",ParseColor.toInt(this.hatColor));
+        tag.putBoolean("tiered",this.isTiered);
+        ListTag trades = new ListTag();
+        for (List<tradeObject> tradeObjects : this.tObjTrades) {
+            ListTag tradeX = new ListTag();
+            for (tradeObject tObject : tradeObjects) {
+                CompoundTag tObjectTag = tObject.tag.copy();
+                tObjectTag.putString("factoryId",tObject.factoryId);
+                tradeX.add(tObjectTag);
+            }
+            if (tradeX.size()>0) {
+                trades.add(tradeX);
+            }
+        }
+        tag.put("trades",trades);
+        tag.putIntArray("tradeCount",this.tierTradeCount);
+        return tag;
+    }
 
 }

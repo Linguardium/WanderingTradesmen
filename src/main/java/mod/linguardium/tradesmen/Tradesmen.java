@@ -10,6 +10,7 @@ import mod.linguardium.tradesmen.config.ModConfig;
 import mod.linguardium.tradesmen.entities.InitEntities;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.world.WorldTickCallback;
+import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,7 +22,6 @@ public class Tradesmen implements ModInitializer {
 
     public static final String MOD_ID = "tradesmen";
     public static final String MOD_NAME = "Wandering Tradesmen";
-
 
     @Override
     public void onInitialize() {

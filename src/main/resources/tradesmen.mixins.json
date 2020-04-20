@@ -6,6 +6,9 @@
 		"WanderingTraderManagerMixin"
 	],
 	"client": [],
+	"server": [
+		"SendTradersToClients"
+	],
 	"injectors": {
 		"defaultRequire": 1
 	}
