@@ -19,6 +19,7 @@ public class TradesmenEntityModel<T extends Entity> extends CompositeEntityModel
     protected final ModelPart rightLeg;
     protected final ModelPart leftLeg;
     protected final ModelPart nose;
+    protected final ModelPart nose2;
 
     public TradesmenEntityModel(float scale) {
         this(scale, 64, 64);
@@ -39,9 +40,13 @@ public class TradesmenEntityModel<T extends Entity> extends CompositeEntityModel
         this.hatpart.pitch = -1.5707964F;
         this.hat.addChild(this.hatpart);
         this.nose = (new ModelPart(this)).setTextureSize(textureWidth, textureHeight);
+        this.nose2 = (new ModelPart(this)).setTextureSize(textureWidth, textureHeight);
+        this.nose2.setPivot(0.0F, -2.0F, 0.0F);
+        this.nose2.setTextureOffset(24, 0).addCuboid(-1.0F, -1.0F, -6.0F, 2.0F, 4.0F, 2.0F, scale);
         this.nose.setPivot(0.0F, -2.0F, 0.0F);
         this.nose.setTextureOffset(24, 0).addCuboid(-1.0F, -1.0F, -5.0F, 2.0F, 2.0F, 2.0F, scale);
         this.head.addChild(this.nose);
+        this.head.addChild(this.nose2);
         this.torso = (new ModelPart(this)).setTextureSize(textureWidth, textureHeight);
         this.torso.setPivot(0.0F, 0.0F, 0.0F);
         this.torso.setTextureOffset(16, 20).addCuboid(-4.0F, 0.0F, -3.0F, 8.0F, 12.0F, 6.0F, scale);
@@ -99,5 +104,14 @@ public class TradesmenEntityModel<T extends Entity> extends CompositeEntityModel
         this.head.visible = visible;
         this.hat.visible = visible;
         this.hatpart.visible = visible;
+    }
+    public void setVanillaNose(boolean enabled) {
+        if (enabled) {
+            this.nose.visible=false;
+            this.nose2.visible=true;
+        }else{
+            this.nose.visible=true;
+            this.nose2.visible=false;
+        }
     }
 }

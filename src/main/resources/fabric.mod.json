@@ -8,7 +8,11 @@
     "Linguardium"
   ],
   "contributors": [],
-  "contact": {},
+  "contact": {
+    "homepage": "https://github.com/Linguardium/WanderingTradesmen/wiki",
+    "sources": "https://github.com/Linguardium/WanderingTradesmen",
+    "issues": "https://github.com/Linguardium/WanderingTradesmen/issues"
+  },
   "license": "MIT",
   "icon": "assets/tradesmen/icon.png",
   "environment": "*",
@@ -28,6 +32,11 @@
   "depends": {
     "fabricloader": ">=0.4.0",
     "fabric": "*",
-    "libcd": ">=2.3.0"
+    "libcd": ">=2.3.0",
+    "autoconfig1u": ">=2.0"
+  },
+  "recommends": {
+    "cloth-config2":">=2.13.2",
+    "modmenu": ">=1.10.2"
   }
 }

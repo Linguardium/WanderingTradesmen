@@ -5,6 +5,7 @@ import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
 import mod.linguardium.tradesmen.Tradesmen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screen.Screen;
 
 import java.util.Optional;
@@ -19,6 +20,10 @@ public class ConfigMenu implements ModMenuApi {
 
     @Override
     public Optional<Supplier<Screen>> getConfigScreen(Screen screen) {
-        return Optional.of(AutoConfig.getConfigScreen(ModConfig.class, screen));
+        if (FabricLoader.getInstance().isModLoaded("cloth-config2")) {
+            return Optional.of(AutoConfig.getConfigScreen(ModConfig.class, screen));
+        }else{
+            return Optional.empty();
+        }
     }
 }

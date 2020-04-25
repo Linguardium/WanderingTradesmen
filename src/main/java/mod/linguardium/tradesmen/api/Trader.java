@@ -39,7 +39,7 @@ public class Trader {
     public Boolean isTiered = false;
     public List<String> allowedWorlds = new ArrayList<>();
     public boolean godMode;
-
+    public boolean oldNose;
 
     public Trader(String name, String TextureId, String clothesTextureId, float[] clothesColor, String hatTextureId, float[] hatColor, String animal, List<List<TradeOffers.Factory>> trades, List<Integer> tradeCount, Boolean tiered) {
         this.name = new TranslatableText(name);
@@ -54,6 +54,7 @@ public class Trader {
         this.TRADES=trades;
         this.godMode=false;
         this.animalCount=1;
+        this.oldNose=false;
     }
     public Trader() {
         this.name=new LiteralText("Tradesman");;
@@ -66,6 +67,7 @@ public class Trader {
         this.allowedWorlds=new ArrayList<>();
         this.godMode=false;
         this.animalCount=1;
+        this.oldNose=false;
     }
     public Trader name(String trader_name) {
         this.name=new TranslatableText(trader_name);
@@ -124,6 +126,8 @@ public class Trader {
         this.godMode=b;
         return this;
     }
+    public Trader oldNose(boolean b) { this.oldNose=b; return this; }
+
     public Trader setTrades(List<List<tradeObject>> trades, List<Integer> tradeCounts) {
         List<List<TradeOffers.Factory>> tradeFactories = new ArrayList<List<TradeOffers.Factory>>();
         for (int i=0;i<trades.size();i++){
@@ -158,7 +162,8 @@ public class Trader {
                 .clothes(tag.getInt("clothesColor"))
                 .hat(tag.getString("hatId"))
                 .hat(tag.getInt("hatColor"))
-                .tiered(tag.getBoolean("tiered"));
+                .tiered(tag.getBoolean("tiered"))
+                .oldNose(tag.getBoolean("oldNose"));
         List<List<tradeObject>> trades = new ArrayList<>();
         ListTag tradeSetsTag = tag.getList("trades",9); // List Tag Type
         for (Tag tradesTag : tradeSetsTag) {
@@ -193,6 +198,7 @@ public class Trader {
         tag.putString("hatId",this.hatTextureId);
         tag.putInt("hatColor",ParseColor.toInt(this.hatColor));
         tag.putBoolean("tiered",this.isTiered);
+        tag.putBoolean("oldNose",this.oldNose);
         ListTag trades = new ListTag();
         for (List<tradeObject> tradeObjects : this.tObjTrades) {
             ListTag tradeX = new ListTag();

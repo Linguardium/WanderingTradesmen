@@ -1,5 +1,8 @@
 {
-  "entity.tradesmen.carltwo.name": "Carl II",
+  "item.tradesmen.spawn_egg_spawner": "Tradesmen Spawn Egg Pack",
+  "item.tradesmen.spawn_egg": "%s Spawn Egg",
+  "itemGroup.tradesmen.spawneggs": "Tradesmen Test Tools",
+  "text.autoconfig.tradesmen.option.vanillaNose": "Use vanilla's big nose",
   "text.autoconfig.tradesmen.option.spawnDelay": "Ticks between spawn attempts",
   "text.autoconfig.tradesmen.option.spawnDelay.@Tooltip": "Also used for despawn timer",
   "text.autoconfig.tradesmen.option.spawnChance": "Chance (in %%) of spawning a trader",

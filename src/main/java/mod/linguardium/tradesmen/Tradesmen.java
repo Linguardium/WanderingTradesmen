@@ -8,9 +8,9 @@ import mod.linguardium.tradesmen.api.TradesmenManager;
 import mod.linguardium.tradesmen.api.objects.tradeObject;
 import mod.linguardium.tradesmen.config.ModConfig;
 import mod.linguardium.tradesmen.entities.InitEntities;
+import mod.linguardium.tradesmen.items.ModItems;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.world.WorldTickCallback;
-import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,6 +29,7 @@ public class Tradesmen implements ModInitializer {
         AutoConfig.register(ModConfig.class, JanksonConfigSerializer::new);
         InitEntities.init();
         tradeObject.init();
+        ModItems.init();
         WorldTickCallback.EVENT.register(TradesmenManager.INSTANCE);
 
         TweakerManager.INSTANCE.addTweaker("Tradesmen.TraderTweaker", TraderTweaker.INSTANCE);

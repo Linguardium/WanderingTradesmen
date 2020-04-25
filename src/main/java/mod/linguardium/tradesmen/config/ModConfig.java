@@ -10,6 +10,7 @@ public class ModConfig implements ConfigData {
 
     public boolean disableWanderingTrader = false;
     public boolean disableWanderingTradesmen = false;
+    public boolean vanillaNose = false;
     public boolean despawnAnimals = true;
     @ConfigEntry.Gui.Tooltip
     public int spawnDelay = 24000;

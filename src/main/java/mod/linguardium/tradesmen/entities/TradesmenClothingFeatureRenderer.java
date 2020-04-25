@@ -1,5 +1,6 @@
 package mod.linguardium.tradesmen.entities;
 
+import mod.linguardium.tradesmen.Tradesmen;
 import mod.linguardium.tradesmen.api.Trader;
 import mod.linguardium.tradesmen.api.TradesmenManager;
 import net.fabricmc.api.EnvType;
@@ -29,6 +30,13 @@ public class TradesmenClothingFeatureRenderer<T extends TradesmenEntity, M exten
         if (!livingEntity.isInvisible()) {
             Trader traderData = TradesmenManager.getTraderById(((TradesmenEntity)livingEntity).getTraderType());
             M entityModel = this.getContextModel();
+            if ( entityModel instanceof TradesmenEntityModel) {
+                if (traderData.oldNose || Tradesmen.getConfig().vanillaNose) {
+                    ((TradesmenEntityModel) entityModel).setVanillaNose(true);
+                } else {
+                    ((TradesmenEntityModel) entityModel).setVanillaNose(false);
+                }
+            }
             entityModel.setHatVisible(true); // show head texture changes
             if (!traderData.clothesTextureId.isEmpty()) {
                 renderModel(entityModel, new Identifier(traderData.clothesTextureId), matrixStack, vertexConsumerProvider, i, livingEntity, traderData.clothesColor[0], traderData.clothesColor[1], traderData.clothesColor[2]);
