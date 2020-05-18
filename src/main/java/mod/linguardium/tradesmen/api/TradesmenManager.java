@@ -1,7 +1,10 @@
 package mod.linguardium.tradesmen.api;
 
 
+import com.google.common.collect.Lists;
+import io.github.cottonmc.libcd.api.CDSyntaxError;
 import mod.linguardium.tradesmen.Tradesmen;
+import mod.linguardium.tradesmen.api.objects.tradeObject;
 import mod.linguardium.tradesmen.entities.InitEntities;
 import mod.linguardium.tradesmen.entities.TradesmenEntity;
 import net.fabricmc.fabric.api.event.world.WorldTickCallback;
@@ -26,6 +29,8 @@ import org.apache.logging.log4j.Level;
 
 import java.util.*;
 
+import static mod.linguardium.tradesmen.Tradesmen.log;
+
 public class TradesmenManager implements WorldTickCallback {
     public static final TradesmenManager INSTANCE = new TradesmenManager();
     private HashMap<World, WorldTradesmenManager> WorldManagers = new HashMap<>();
@@ -35,6 +40,22 @@ public class TradesmenManager implements WorldTickCallback {
     }
     public static Trader getTraderById(String Id) {
         return Traders.getOrDefault(Id,Traders.get("default:default_trader"));
+    }
+    public static void ClearTradesmenList() {
+        TradesmenManager.Traders.clear();
+        List<tradeObject> defaultTrades = new ArrayList<>();
+        try {
+        List<List<tradeObject>> alltrades = Lists.newArrayList(
+                Lists.newArrayList(TraderTweaker.INSTANCE.makeTrade("minecraft:dirt",64,1,1,0)),
+                Lists.newArrayList(TraderTweaker.INSTANCE.makeTrade().item("minecraft:dirt@64").price(new String[]{"minecraft:cobblestone", "minecraft:sand"}).maxUses(4),
+                        TraderTweaker.INSTANCE.makeTrade().item("minecraft:dirt").price("minecraft:emerald").count(4).maxUses(4),
+                        TraderTweaker.INSTANCE.makeTrade().item("minecraft:dirt@64").price(1).maxUses(4))
+        );
+        Trader t = new Trader().name("Def Ault").tiered().setTrades(alltrades,Lists.newArrayList(1,1));
+        TradesmenManager.Traders.put("default:default_trader", t);
+        } catch (CDSyntaxError cdSyntaxError) {
+            cdSyntaxError.printStackTrace();
+        }
     }
     private class WorldTradesmenManager {
         private final Random random = new Random();

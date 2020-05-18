@@ -48,15 +48,17 @@ public class TradersPacketHandler {
     }
     public static void receiveClearTraders(PacketContext packetContext, PacketByteBuf attachedData) {
         packetContext.getTaskQueue().execute(() -> {
-            TradesmenManager.Traders.clear();
+            TradesmenManager.ClearTradesmenList();
         });
     }
     public static void receiveTrader(PacketContext packetContext, PacketByteBuf attachedData) {
         CompoundTag trader = attachedData.readCompoundTag();
         packetContext.getTaskQueue().execute(() -> {
             try {
-                TradesmenManager.Traders.put(trader.getString("traderId"), Trader.fromClientTag(trader));
-                log(Level.INFO, "Received trader: " + trader.getString("traderId"));
+                if (!TradesmenManager.Traders.containsKey(trader.getString("traderId"))) {
+                    TradesmenManager.Traders.put(trader.getString("traderId"), Trader.fromClientTag(trader));
+                    log(Level.INFO, "Received trader: " + trader.getString("traderId"));
+                }
             } catch (InvalidObjectException e) {
                 Tradesmen.log(Level.WARN, "Received invalid trader from server: " + trader.getString("traderId"));
             }
@@ -68,13 +70,15 @@ public class TradersPacketHandler {
         packetContext.getTaskQueue().execute(() -> {
             String loaded = "Received Traders from server: ";
             ListTag traders = TraderTag.getList("traders", 10); // CompoundType
-            TradesmenManager.Traders.clear();
+            TradesmenManager.ClearTradesmenList();
             for (Tag tag_trader : traders) {
                 if (tag_trader instanceof CompoundTag) {
                     CompoundTag trader = (CompoundTag)tag_trader;
                     try {
-                        TradesmenManager.Traders.put(trader.getString("traderId"), Trader.fromClientTag(trader));
-                        loaded+=trader.getString("traderId")+", ";
+                        if (!TradesmenManager.Traders.containsKey(trader.getString("traderId"))) {
+                            TradesmenManager.Traders.put(trader.getString("traderId"), Trader.fromClientTag(trader));
+                            loaded += trader.getString("traderId") + ", ";
+                        }
                     } catch (InvalidObjectException e) {
                         Tradesmen.log(Level.WARN,"Received invalid trader from server: "+trader.getString("traderId"));
                     }

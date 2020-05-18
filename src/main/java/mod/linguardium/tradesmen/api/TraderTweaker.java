@@ -18,7 +18,7 @@ public class TraderTweaker implements Tweaker {
 
     @Override
     public void prepareReload(ResourceManager resourceManager) {
-        TradesmenManager.Traders.clear();
+        TradesmenManager.ClearTradesmenList();
     }
 
     @Override

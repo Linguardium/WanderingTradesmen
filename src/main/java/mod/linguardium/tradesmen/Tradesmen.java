@@ -30,6 +30,7 @@ public class Tradesmen implements ModInitializer {
         InitEntities.init();
         tradeObject.init();
         ModItems.init();
+        TradesmenManager.ClearTradesmenList();
         WorldTickCallback.EVENT.register(TradesmenManager.INSTANCE);
 
         TweakerManager.INSTANCE.addTweaker("Tradesmen.TraderTweaker", TraderTweaker.INSTANCE);

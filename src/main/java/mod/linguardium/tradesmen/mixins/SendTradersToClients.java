@@ -21,7 +21,8 @@ public abstract class SendTradersToClients implements ServerLoginPacketListener 
         Tradesmen.log(Level.INFO,"Sending traders to client: "+player.getName().asString());
         TradersPacketHandler.sendClearTraders(player);
         TradesmenManager.Traders.forEach((traderId, t)->{
-            TradersPacketHandler.sendAddTrader(player,traderId,t);
+            if (!traderId.equals("default:default_trader"))
+                TradersPacketHandler.sendAddTrader(player,traderId,t);
         });
     }
 }
