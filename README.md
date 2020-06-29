@@ -1,4 +1,14 @@
-# WanderingTradesmen
-Adds a LibCD Tweaker to set multiple trader types and a wandering trader style event.
+# WanderingTradesmen 2.0
+Adds a json configurable wandering trader style event.
+Allows any number of wandering trader types.
 
-For more info, be sure to read the Wiki: https://github.com/Linguardium/WanderingTradesmen/wiki
+
+TODO:
+ultimately the plan is to move to JSON files. I will be looking into implementing a similar style to https://github.com/FVbico/Data-Driven-Minecraft or the bedrock behavior pack formats. More info to come.  (data driven is life)
+
+Recreate everything
+Look into server-only implementations
+JSON loading
+Re-implement LibCD after json data functions are stabilized
+
+
